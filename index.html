@@ -6,7 +6,7 @@
 <title>TEND</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <style>
   :root {
     --bg: #0e0e0e;
@@ -21,7 +21,7 @@
     --amber: #f0c674;
     --red: #f08a8a;
     --mono: 'JetBrains Mono', monospace;
-    --display: 'Syne', sans-serif;
+    --display: 'JetBrains Mono', monospace;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { background: var(--bg); color: var(--text); font-family: var(--mono); }
@@ -30,6 +30,16 @@
     margin: 0 auto;
     padding: 24px 16px calc(96px + env(safe-area-inset-bottom));
     min-height: 100vh;
+    position: relative;
+  }
+  /* ambient glow behind everything */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background:
+      radial-gradient(120% 70% at 80% -10%, rgba(167,139,250,.16), transparent 55%),
+      radial-gradient(90% 55% at -10% 8%, rgba(110,231,168,.07), transparent 50%),
+      var(--bg);
   }
 
   /* ---------- header ---------- */
@@ -38,10 +48,21 @@
     font-family: var(--display);
     font-weight: 800;
     font-size: 38px;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.18em;
     line-height: 1;
+    background: linear-gradient(95deg, #fff 30%, var(--accent));
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: transparent;
   }
-  .title .dot { color: var(--accent); }
+  .title .dot {
+    -webkit-text-fill-color: var(--accent); color: var(--accent);
+    display: inline-block;
+    animation: dotPulse 2.4s ease-in-out infinite;
+  }
+  @keyframes dotPulse {
+    0%, 100% { opacity: .55; transform: translateY(0) scale(1); }
+    50%      { opacity: 1;   transform: translateY(-2px) scale(1.18); }
+  }
   .sub {
     font-size: 11px;
     color: var(--muted);
@@ -58,10 +79,17 @@
   }
   .stat {
     flex: 1;
-    background: var(--surface);
+    background: linear-gradient(160deg, var(--surface-2), var(--surface));
     border: 1px solid var(--line);
     border-radius: 14px;
     padding: 14px 12px;
+    position: relative;
+    overflow: hidden;
+    transition: transform .2s ease, border-color .2s ease;
+  }
+  .stat::after {
+    content: ''; position: absolute; inset: 0; border-radius: inherit;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.04); pointer-events: none;
   }
   .stat .num {
     font-family: var(--display);
@@ -76,7 +104,16 @@
     text-transform: uppercase;
     margin-top: 7px;
   }
-  .stat.thirsty .num { color: var(--accent); }
+  .stat.thirsty { border-color: var(--accent-dim); }
+  .stat.thirsty .num {
+    color: var(--accent);
+    text-shadow: 0 0 18px rgba(167,139,250,.45);
+  }
+  /* highlight the "need water" stat when something is actually due */
+  .stat.thirsty.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent-dim), 0 8px 24px -10px var(--accent);
+  }
 
   /* ---------- group heading ---------- */
   .group-head {
@@ -97,26 +134,48 @@
   /* ---------- card ---------- */
   .card {
     position: relative;
-    background: var(--surface);
+    background: linear-gradient(165deg, var(--surface-2), var(--surface));
     border: 1px solid var(--line);
     border-radius: 16px;
     padding: 16px;
     margin-bottom: 12px;
     overflow: hidden;
-    transition: border-color .25s ease, transform .12s ease;
+    transition: border-color .25s ease, transform .12s ease, box-shadow .25s ease;
+    animation: cardIn .42s cubic-bezier(.2,.8,.2,1) both;
+  }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: none; }
   }
   .card:active { transform: scale(.992); }
+  @media (hover:hover) {
+    .card:hover { border-color: var(--accent-dim); box-shadow: 0 10px 30px -18px rgba(0,0,0,.9); transform: translateY(-2px); }
+  }
   .card .fill {
     position: absolute;
     inset: 0 auto 0 0;
     width: 0%;
-    background: linear-gradient(90deg, rgba(167,139,250,.16), rgba(167,139,250,.04));
+    background: linear-gradient(90deg, rgba(167,139,250,.18), rgba(167,139,250,.04));
     border-right: 1px solid rgba(167,139,250,.25);
     transition: width .6s cubic-bezier(.2,.8,.2,1), background .4s;
     z-index: 0;
   }
-  .card.due .fill { background: linear-gradient(90deg, rgba(240,138,138,.16), rgba(240,138,138,.04)); border-right-color: rgba(240,138,138,.3); }
-  .card.soon .fill { background: linear-gradient(90deg, rgba(240,198,116,.14), rgba(240,198,116,.03)); border-right-color: rgba(240,198,116,.28); }
+  /* moving shimmer along the moisture level */
+  .card .fill::after {
+    content: ''; position: absolute; top: 0; right: -2px; bottom: 0; width: 40px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.07));
+  }
+  .card.due .fill { background: linear-gradient(90deg, rgba(240,138,138,.18), rgba(240,138,138,.04)); border-right-color: rgba(240,138,138,.3); }
+  .card.soon .fill { background: linear-gradient(90deg, rgba(240,198,116,.16), rgba(240,198,116,.03)); border-right-color: rgba(240,198,116,.28); }
+  /* overdue plants gently breathe to draw the eye */
+  .card.due {
+    border-color: rgba(240,138,138,.35);
+    animation: cardIn .42s cubic-bezier(.2,.8,.2,1) both, dueGlow 2.6s ease-in-out infinite;
+  }
+  @keyframes dueGlow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(240,138,138,0); }
+    50%      { box-shadow: 0 0 22px -6px rgba(240,138,138,.45); }
+  }
   .card-inner { position: relative; z-index: 1; display: flex; align-items: center; gap: 14px; }
 
   .glyph {
@@ -148,15 +207,17 @@
   .pill {
     display: inline-block; width: 7px; height: 7px; border-radius: 50%;
     background: var(--green);
+    box-shadow: 0 0 8px var(--green);
   }
-  .status.soon .pill { background: var(--amber); }
-  .status.due .pill { background: var(--red); }
+  .status.soon .pill { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+  .status.due .pill { background: var(--red); box-shadow: 0 0 8px var(--red); animation: pillBlink 1.4s ease-in-out infinite; }
+  @keyframes pillBlink { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
   .status.soon { color: var(--amber); }
   .status.due { color: var(--red); }
 
   .water-btn {
     flex: 0 0 auto;
-    background: var(--accent);
+    background: linear-gradient(160deg, #c4b1ff, var(--accent));
     color: #14121f;
     border: none;
     font-family: var(--mono);
@@ -166,10 +227,25 @@
     padding: 11px 13px;
     border-radius: 11px;
     cursor: pointer;
-    transition: transform .1s, filter .2s, opacity .2s;
+    box-shadow: 0 6px 16px -8px var(--accent);
+    transition: transform .1s, filter .2s, opacity .2s, box-shadow .2s;
   }
+  @media (hover:hover) { .water-btn:hover { filter: brightness(1.08); box-shadow: 0 8px 20px -8px var(--accent); } }
   .water-btn:active { transform: scale(.92); }
-  .water-btn.done { background: var(--surface-2); color: var(--green); border: 1px solid var(--line); }
+  .water-btn.done { background: var(--surface-2); color: var(--green); border: 1px solid var(--line); box-shadow: none; }
+  /* splash burst when a plant is watered */
+  .card.splash::before {
+    content: ''; position: absolute; z-index: 3; left: var(--sx,80%); top: 50%;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--accent);
+    transform: translate(-50%,-50%);
+    animation: splash .6s ease-out forwards;
+    pointer-events: none;
+  }
+  @keyframes splash {
+    0%   { opacity: .9; transform: translate(-50%,-50%) scale(.3); }
+    100% { opacity: 0;  transform: translate(-50%,-50%) scale(7); }
+  }
 
   .edit-dot {
     position: absolute; top: 10px; right: 12px; z-index: 2;
@@ -408,8 +484,14 @@ function todayISO(){ const d=new Date(); d.setHours(0,0,0,0); return d.toISOStri
 function load(){
   try { plants = JSON.parse(localStorage.getItem(STORE)) || null; } catch(e){ plants = null; }
   if(!plants){
-    const t = todayISO();
-    plants = SEED.map((p,i)=>({ id:'p'+i+'_'+Date.now(), last:t, ...p }));
+    // fresh launch with no data: start every plant in the "to water" state
+    // by back-dating its last watering by its full interval (ratio = 1 → due).
+    const now = Date.now();
+    plants = SEED.map((p,i)=>{
+      const d = new Date(); d.setHours(0,0,0,0);
+      d.setDate(d.getDate() - p.interval);
+      return { id:'p'+i+'_'+now, last:d.toISOString().slice(0,10), ...p };
+    });
     save();
   }
 }
@@ -438,6 +520,7 @@ function render(){
   document.getElementById('stat-due').textContent = due;
   document.getElementById('stat-soon').textContent = soon;
   document.getElementById('stat-total').textContent = plants.length;
+  document.querySelector('.stat.thirsty').classList.toggle('active', due > 0);
 
   const list = document.getElementById('list');
   list.innerHTML = '';
@@ -492,7 +575,14 @@ function water(id, btn){
   const p = plants.find(x=>x.id===id); if(!p) return;
   p.last = todayISO();
   save();
-  render();
+  // splash burst centred on the tapped button before the list re-renders
+  const card = btn && btn.closest('.card');
+  if(card){
+    const cr = card.getBoundingClientRect(), br = btn.getBoundingClientRect();
+    card.style.setProperty('--sx', (br.left - cr.left + br.width/2) + 'px');
+    card.classList.add('splash');
+  }
+  setTimeout(render, 320);
 }
 
 /* ---------- editor ---------- */
