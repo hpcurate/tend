@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>TEND</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0e0e0e;
+    --surface: #161616;
+    --surface-2: #1d1d1d;
+    --line: #2a2a2a;
+    --accent: #A78BFA;
+    --accent-dim: #6b5baf;
+    --text: #ededed;
+    --muted: #7d7d7d;
+    --green: #6ee7a8;
+    --amber: #f0c674;
+    --red: #f08a8a;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { background: var(--bg); color: var(--text); font-family: var(--mono); }
+  body {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 24px 16px calc(96px + env(safe-area-inset-bottom));
+    min-height: 100vh;
+  }
+
+  /* ---------- header ---------- */
+  header { margin-bottom: 22px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .title {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 38px;
+    letter-spacing: 0.14em;
+    line-height: 1;
+  }
+  .title .dot { color: var(--accent); }
+  .sub {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+
+  /* ---------- summary ---------- */
+  .summary {
+    display: flex;
+    gap: 10px;
+    margin: 18px 0 22px;
+  }
+  .stat {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px 12px;
+  }
+  .stat .num {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 30px;
+    line-height: 1;
+  }
+  .stat .lbl {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-top: 7px;
+  }
+  .stat.thirsty .num { color: var(--accent); }
+
+  /* ---------- group heading ---------- */
+  .group-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin: 26px 4px 12px;
+  }
+  .group-head h2 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .group-head .cnt { font-size: 11px; color: var(--muted); letter-spacing: 0.1em; }
+
+  /* ---------- card ---------- */
+  .card {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: border-color .25s ease, transform .12s ease;
+  }
+  .card:active { transform: scale(.992); }
+  .card .fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 0%;
+    background: linear-gradient(90deg, rgba(167,139,250,.16), rgba(167,139,250,.04));
+    border-right: 1px solid rgba(167,139,250,.25);
+    transition: width .6s cubic-bezier(.2,.8,.2,1), background .4s;
+    z-index: 0;
+  }
+  .card.due .fill { background: linear-gradient(90deg, rgba(240,138,138,.16), rgba(240,138,138,.04)); border-right-color: rgba(240,138,138,.3); }
+  .card.soon .fill { background: linear-gradient(90deg, rgba(240,198,116,.14), rgba(240,198,116,.03)); border-right-color: rgba(240,198,116,.28); }
+  .card-inner { position: relative; z-index: 1; display: flex; align-items: center; gap: 14px; }
+
+  .glyph {
+    flex: 0 0 auto;
+    width: 46px; height: 46px;
+    display: grid; place-items: center;
+    font-size: 24px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  .meta { flex: 1; min-width: 0; }
+  .meta .name {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 17px;
+    letter-spacing: 0.02em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .meta .species {
+    font-size: 11px; color: var(--muted);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-top: 2px;
+  }
+  .meta .status {
+    font-size: 11px; letter-spacing: 0.08em;
+    margin-top: 7px; display: flex; align-items: center; gap: 7px;
+  }
+  .pill {
+    display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--green);
+  }
+  .status.soon .pill { background: var(--amber); }
+  .status.due .pill { background: var(--red); }
+  .status.soon { color: var(--amber); }
+  .status.due { color: var(--red); }
+
+  .water-btn {
+    flex: 0 0 auto;
+    background: var(--accent);
+    color: #14121f;
+    border: none;
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: 11px 13px;
+    border-radius: 11px;
+    cursor: pointer;
+    transition: transform .1s, filter .2s, opacity .2s;
+  }
+  .water-btn:active { transform: scale(.92); }
+  .water-btn.done { background: var(--surface-2); color: var(--green); border: 1px solid var(--line); }
+
+  .edit-dot {
+    position: absolute; top: 10px; right: 12px; z-index: 2;
+    color: var(--muted); font-size: 16px; line-height: 1;
+    background: none; border: none; cursor: pointer; padding: 4px;
+  }
+
+  /* ---------- add button ---------- */
+  .fab-wrap {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+    background: linear-gradient(180deg, transparent, var(--bg) 38%);
+    max-width: 640px; margin: 0 auto;
+    z-index: 20;
+  }
+  .add-btn {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    color: var(--text);
+    font-family: var(--mono); font-weight: 700;
+    font-size: 13px; letter-spacing: 0.1em;
+    padding: 15px; border-radius: 14px; cursor: pointer;
+    transition: border-color .2s;
+  }
+  .add-btn:active { border-color: var(--accent); }
+
+  /* ---------- modal ---------- */
+  .modal-bg {
+    position: fixed; inset: 0; z-index: 50;
+    background: rgba(0,0,0,.7);
+    display: none; align-items: flex-end; justify-content: center;
+    backdrop-filter: blur(2px);
+  }
+  .modal-bg.open { display: flex; }
+  .modal {
+    width: 100%; max-width: 640px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 20px 20px 0 0;
+    padding: 22px 18px calc(22px + env(safe-area-inset-bottom));
+    animation: slideUp .28s cubic-bezier(.2,.8,.2,1);
+  }
+  @keyframes slideUp { from { transform: translateY(40px); opacity: .4; } to { transform: none; opacity: 1; } }
+  .modal h3 { font-family: var(--display); font-weight: 800; font-size: 20px; letter-spacing: .04em; margin-bottom: 18px; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 10px; color: var(--muted); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 6px; }
+  .field input, .field select {
+    width: 100%; background: var(--bg); color: var(--text);
+    border: 1px solid var(--line); border-radius: 10px;
+    padding: 12px; font-family: var(--mono); font-size: 14px;
+  }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--accent); }
+  .row2 { display: flex; gap: 10px; }
+  .row2 .field { flex: 1; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 8px; }
+  .btn {
+    flex: 1; padding: 14px; border-radius: 12px; cursor: pointer;
+    font-family: var(--mono); font-weight: 700; font-size: 13px; letter-spacing: .08em;
+    border: 1px solid var(--line); background: var(--surface-2); color: var(--text);
+  }
+  .btn.primary { background: var(--accent); color: #14121f; border: none; }
+  .btn.danger { color: var(--red); }
+  .hint { font-size: 10px; color: var(--muted); letter-spacing: .04em; line-height: 1.5; margin-top: 14px; }
+
+  /* settings */
+  .gear {
+    flex: 0 0 auto;
+    width: 42px; height: 42px;
+    background: var(--surface); border: 1px solid var(--line); color: var(--muted);
+    border-radius: 12px; font-size: 17px; cursor: pointer;
+    transition: border-color .2s, color .2s;
+  }
+  .gear:active { border-color: var(--accent); color: var(--accent); }
+  .seg-label {
+    font-size: 10px; color: var(--muted); letter-spacing: .14em;
+    text-transform: uppercase; margin: 20px 0 9px;
+  }
+  .seg-label.first { margin-top: 2px; }
+  textarea.io {
+    width: 100%; min-height: 92px; resize: vertical;
+    background: var(--bg); color: var(--text);
+    border: 1px solid var(--line); border-radius: 10px;
+    padding: 12px; font-family: var(--mono); font-size: 11px; line-height: 1.5;
+    word-break: break-all;
+  }
+  textarea.io:focus { outline: none; border-color: var(--accent); }
+  .file-btn { position: relative; overflow: hidden; }
+  .file-btn input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .toast {
+    position: fixed; left: 50%; bottom: calc(110px + env(safe-area-inset-bottom));
+    transform: translateX(-50%) translateY(10px);
+    background: var(--surface-2); border: 1px solid var(--line); color: var(--text);
+    font-size: 12px; letter-spacing: .04em; padding: 11px 16px; border-radius: 10px;
+    opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 80;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+  <header>
+    <div>
+      <div class="title">TEND<span class="dot">.</span></div>
+      <div class="sub" id="today-label">—</div>
+    </div>
+    <button class="gear" onclick="openSettings()" aria-label="Settings">⚙</button>
+  </header>
+
+  <div class="summary">
+    <div class="stat thirsty"><div class="num" id="stat-due">0</div><div class="lbl">need water</div></div>
+    <div class="stat"><div class="num" id="stat-soon">0</div><div class="lbl">due soon</div></div>
+    <div class="stat"><div class="num" id="stat-total">0</div><div class="lbl">plants</div></div>
+  </div>
+
+  <div id="list"></div>
+
+  <div class="fab-wrap">
+    <button class="add-btn" onclick="openEditor()">+ ADD PLANT</button>
+  </div>
+
+  <!-- editor modal -->
+  <div class="modal-bg" id="modal">
+    <div class="modal">
+      <h3 id="modal-title">EDIT PLANT</h3>
+      <div class="field">
+        <label>Name</label>
+        <input id="f-name" type="text" placeholder="e.g. Kitchen basil" />
+      </div>
+      <div class="field">
+        <label>Species</label>
+        <input id="f-species" type="text" placeholder="e.g. Ocimum basilicum" />
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Group</label>
+          <select id="f-group">
+            <option value="herb">Herb / edible</option>
+            <option value="tropical">Tropical foliage</option>
+            <option value="seedling">Seedling</option>
+            <option value="succulent">Cactus / succulent</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Water every (days)</label>
+          <input id="f-interval" type="number" min="1" max="60" />
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Last watered</label>
+          <input id="f-last" type="date" />
+        </div>
+        <div class="field">
+          <label>Glyph</label>
+          <input id="f-glyph" type="text" maxlength="2" placeholder="🌿" />
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeEditor()">CANCEL</button>
+        <button class="btn primary" onclick="saveEditor()">SAVE</button>
+      </div>
+      <div class="modal-actions" id="delete-row" style="margin-top:10px; display:none;">
+        <button class="btn danger" onclick="deletePlant()">DELETE PLANT</button>
+      </div>
+      <p class="hint">Intervals are summer baselines — in winter, roughly double them. Water-loving herbs first; cacti and snake plants rarely. Adjust anything that doesn't match your room.</p>
+    </div>
+  </div>
+
+  <!-- settings modal -->
+  <div class="modal-bg" id="settings">
+    <div class="modal">
+      <h3>SETTINGS</h3>
+
+      <div class="seg-label first">Export — copy or download, then import on another device</div>
+      <textarea class="io" id="export-box" readonly onclick="this.select()"></textarea>
+      <div class="modal-actions" style="margin-top:10px;">
+        <button class="btn" onclick="doCopy()">COPY</button>
+        <button class="btn primary" onclick="doDownload()">DOWNLOAD .JSON</button>
+      </div>
+
+      <div class="seg-label">Import — paste backup text or pick a file</div>
+      <textarea class="io" id="import-box" placeholder="Paste exported text here…"></textarea>
+      <div class="modal-actions" style="margin-top:10px;">
+        <button class="btn file-btn">PICK FILE<input type="file" accept=".json,application/json" onchange="importFile(event)" /></button>
+        <button class="btn primary" onclick="importPaste()">IMPORT</button>
+      </div>
+
+      <div class="seg-label">Reset</div>
+      <div class="modal-actions">
+        <button class="btn danger" onclick="clearData()">CLEAR ALL DATA</button>
+      </div>
+
+      <div class="modal-actions" style="margin-top:14px;">
+        <button class="btn" onclick="closeSettings()">CLOSE</button>
+      </div>
+      <p class="hint">Clearing wipes your saved list and watering history, then reloads the default plants. Export first if you want a backup.</p>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+const STORE = 'tend.plants.v2';
+const DAY = 86400000;
+
+// summer baseline intervals; user-editable
+const SEED = [
+  { name:'Basil',            species:'Ocimum basilicum',        group:'herb',      interval:2,  glyph:'🌿' },
+  { name:'Chives',           species:'Allium schoenoprasum',    group:'herb',      interval:3,  glyph:'🧅' },
+  { name:'Spring onions',    species:'Allium fistulosum',       group:'herb',      interval:3,  glyph:'🧅' },
+  { name:'Apple seedling 1', species:'Malus sp.',               group:'seedling',  interval:4,  glyph:'🌱' },
+  { name:'Apple seedling 2', species:'Malus sp.',               group:'seedling',  interval:4,  glyph:'🌱' },
+  { name:'Apple seedling 3', species:'Malus sp.',               group:'seedling',  interval:4,  glyph:'🌱' },
+  { name:'Pilea pup',        species:'Pilea peperomioides',     group:'tropical',  interval:7,  glyph:'🪙' },
+  { name:'Turtle vine',      species:'Callisia repens',         group:'tropical',  interval:6,  glyph:'🪴' },
+  { name:'Money tree',       species:'Pachira aquatica',        group:'tropical',  interval:9,  glyph:'🌳' },
+  { name:'Rubber plant',     species:'Ficus elastica',          group:'tropical',  interval:9,  glyph:'🪴' },
+  { name:'Aloe',             species:'Aloe sp.',                group:'succulent', interval:14, glyph:'🌵' },
+  { name:'Snake plant',      species:'Dracaena trifasciata',    group:'succulent', interval:18, glyph:'🗡️' },
+  { name:'Snake plant pup',  species:'Dracaena trifasciata',    group:'succulent', interval:16, glyph:'🌱' },
+  { name:'Cane cactus',      species:'Austrocylindropuntia',    group:'succulent', interval:18, glyph:'🌵' },
+  { name:'Columnar cactus',  species:'Echinopsis sp.',          group:'succulent', interval:20, glyph:'🌵' },
+];
+
+const GROUPS = [
+  { key:'herb',      label:'Herbs — thirsty' },
+  { key:'seedling',  label:'Seedlings — keep moist' },
+  { key:'tropical',  label:'Tropical — moderate' },
+  { key:'succulent', label:'Cacti & succulents — rare' },
+];
+
+let plants = [];
+let editingId = null;
+
+function todayISO(){ const d=new Date(); d.setHours(0,0,0,0); return d.toISOString().slice(0,10); }
+function load(){
+  try { plants = JSON.parse(localStorage.getItem(STORE)) || null; } catch(e){ plants = null; }
+  if(!plants){
+    const t = todayISO();
+    plants = SEED.map((p,i)=>({ id:'p'+i+'_'+Date.now(), last:t, ...p }));
+    save();
+  }
+}
+function save(){ try { localStorage.setItem(STORE, JSON.stringify(plants)); } catch(e){} }
+
+function daysSince(iso){
+  const a = new Date(iso+'T00:00:00'); const b = new Date(todayISO()+'T00:00:00');
+  return Math.round((b-a)/DAY);
+}
+function state(p){
+  const d = daysSince(p.last);
+  const ratio = d / p.interval;       // 0 = just watered, 1 = due
+  const moisture = Math.max(0, Math.min(1, 1 - ratio));
+  let s = 'fine';
+  if(ratio >= 1) s = 'due';
+  else if(ratio >= 0.7) s = 'soon';
+  return { d, ratio, moisture, s };
+}
+
+function render(){
+  document.getElementById('today-label').textContent =
+    new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'}).toUpperCase();
+
+  let due=0, soon=0;
+  plants.forEach(p=>{ const st=state(p); if(st.s==='due') due++; else if(st.s==='soon') soon++; });
+  document.getElementById('stat-due').textContent = due;
+  document.getElementById('stat-soon').textContent = soon;
+  document.getElementById('stat-total').textContent = plants.length;
+
+  const list = document.getElementById('list');
+  list.innerHTML = '';
+
+  GROUPS.forEach(g=>{
+    const inGroup = plants.filter(p=>p.group===g.key)
+      .map(p=>({p, st:state(p)}))
+      .sort((a,b)=> b.st.ratio - a.st.ratio);   // thirstiest first
+    if(!inGroup.length) return;
+
+    const head = document.createElement('div');
+    head.className = 'group-head';
+    const dueN = inGroup.filter(x=>x.st.s==='due').length;
+    head.innerHTML = `<h2>${g.label}</h2><span class="cnt">${dueN? dueN+' due':'all good'}</span>`;
+    list.appendChild(head);
+
+    inGroup.forEach(({p,st})=>{
+      const card = document.createElement('div');
+      card.className = 'card ' + st.s;
+      const fillW = Math.round(st.moisture*100);
+      let statusTxt;
+      if(st.s==='due'){
+        const over = st.d - p.interval;
+        statusTxt = over>0 ? `Overdue by ${over}d` : 'Water today';
+      } else if(st.s==='soon'){
+        statusTxt = `Due in ${p.interval - st.d}d`;
+      } else {
+        statusTxt = `Watered ${st.d===0?'today':st.d+'d ago'} · next in ${p.interval - st.d}d`;
+      }
+      card.innerHTML = `
+        <div class="fill" style="width:${fillW}%"></div>
+        <button class="edit-dot" onclick="openEditor('${p.id}')">⋯</button>
+        <div class="card-inner">
+          <div class="glyph">${p.glyph||'🌿'}</div>
+          <div class="meta">
+            <div class="name">${esc(p.name)}</div>
+            <div class="species">${esc(p.species||'')}</div>
+            <div class="status ${st.s}"><span class="pill"></span>${statusTxt}</div>
+          </div>
+          <button class="water-btn ${st.d===0?'done':''}" onclick="water('${p.id}', this)">
+            ${st.d===0 ? '✓ DONE' : 'WATER'}
+          </button>
+        </div>`;
+      list.appendChild(card);
+    });
+  });
+}
+
+function esc(s){ return (s||'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function water(id, btn){
+  const p = plants.find(x=>x.id===id); if(!p) return;
+  p.last = todayISO();
+  save();
+  render();
+}
+
+/* ---------- editor ---------- */
+function openEditor(id){
+  editingId = id || null;
+  const title = document.getElementById('modal-title');
+  const delRow = document.getElementById('delete-row');
+  if(editingId){
+    const p = plants.find(x=>x.id===editingId);
+    title.textContent = 'EDIT PLANT';
+    document.getElementById('f-name').value = p.name;
+    document.getElementById('f-species').value = p.species||'';
+    document.getElementById('f-group').value = p.group;
+    document.getElementById('f-interval').value = p.interval;
+    document.getElementById('f-last').value = p.last;
+    document.getElementById('f-glyph').value = p.glyph||'';
+    delRow.style.display = 'flex';
+  } else {
+    title.textContent = 'ADD PLANT';
+    document.getElementById('f-name').value = '';
+    document.getElementById('f-species').value = '';
+    document.getElementById('f-group').value = 'tropical';
+    document.getElementById('f-interval').value = 7;
+    document.getElementById('f-last').value = todayISO();
+    document.getElementById('f-glyph').value = '🌿';
+    delRow.style.display = 'none';
+  }
+  document.getElementById('modal').classList.add('open');
+}
+function closeEditor(){ document.getElementById('modal').classList.remove('open'); editingId=null; }
+function saveEditor(){
+  const name = document.getElementById('f-name').value.trim();
+  if(!name){ document.getElementById('f-name').focus(); return; }
+  const data = {
+    name,
+    species: document.getElementById('f-species').value.trim(),
+    group: document.getElementById('f-group').value,
+    interval: Math.max(1, parseInt(document.getElementById('f-interval').value)||7),
+    last: document.getElementById('f-last').value || todayISO(),
+    glyph: document.getElementById('f-glyph').value.trim() || '🌿',
+  };
+  if(editingId){
+    Object.assign(plants.find(x=>x.id===editingId), data);
+  } else {
+    plants.push({ id:'p_'+Date.now(), ...data });
+  }
+  save(); render(); closeEditor();
+}
+function deletePlant(){
+  if(!editingId) return;
+  plants = plants.filter(x=>x.id!==editingId);
+  save(); render(); closeEditor();
+}
+
+/* ---------- settings ---------- */
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(()=>t.classList.remove('show'), 1800);
+}
+function openSettings(){
+  document.getElementById('export-box').value = JSON.stringify(plants, null, 2);
+  document.getElementById('import-box').value = '';
+  document.getElementById('settings').classList.add('open');
+}
+function closeSettings(){ document.getElementById('settings').classList.remove('open'); }
+
+function doCopy(){
+  const box = document.getElementById('export-box');
+  const txt = box.value;
+  const fallback = ()=>{ box.focus(); box.select();
+    try { document.execCommand('copy'); toast('Copied'); } catch(e){ toast('Select the text and copy manually'); } };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(()=>toast('Copied to clipboard'), fallback);
+  } else fallback();
+}
+function doDownload(){
+  const blob = new Blob([document.getElementById('export-box').value], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'tend-backup-'+todayISO()+'.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+  toast('Backup downloaded');
+}
+function importPaste(){
+  const txt = document.getElementById('import-box').value.trim();
+  if(!txt){ toast('Nothing to import'); return; }
+  applyImport(txt);
+}
+function importFile(e){
+  const file = e.target.files && e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=> applyImport(String(reader.result));
+  reader.onerror = ()=> toast('Could not read file');
+  reader.readAsText(file);
+  e.target.value = '';
+}
+function applyImport(txt){
+  let data;
+  try { data = JSON.parse(txt); } catch(e){ toast('Invalid format'); return; }
+  if(!Array.isArray(data)){ toast('Invalid format'); return; }
+  const cleaned = data.filter(x=>x && x.name).map((x,i)=>({
+    id: x.id || ('p_'+Date.now()+'_'+i),
+    name: String(x.name),
+    species: x.species ? String(x.species) : '',
+    group: ['herb','tropical','seedling','succulent'].includes(x.group) ? x.group : 'tropical',
+    interval: Math.max(1, parseInt(x.interval)||7),
+    last: /^\d{4}-\d{2}-\d{2}$/.test(x.last) ? x.last : todayISO(),
+    glyph: x.glyph ? String(x.glyph).slice(0,2) : '🌿',
+  }));
+  if(!cleaned.length){ toast('No valid plants found'); return; }
+  plants = cleaned;
+  save(); render(); closeSettings();
+  toast('Imported '+cleaned.length+' plants');
+}
+function clearData(){
+  if(!confirm('Clear all data and reset to the default plants? Your watering history will be lost.')) return;
+  try { localStorage.removeItem(STORE); } catch(e){}
+  plants = null; load(); render(); closeSettings();
+  toast('Reset to defaults');
+}
+
+document.getElementById('modal').addEventListener('click', e=>{
+  if(e.target.id==='modal') closeEditor();
+});
+document.getElementById('settings').addEventListener('click', e=>{
+  if(e.target.id==='settings') closeSettings();
+});
+
+load();
+render();
+</script>
+</body>
+</html>
