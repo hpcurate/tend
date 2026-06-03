@@ -233,18 +233,35 @@
   @media (hover:hover) { .water-btn:hover { filter: brightness(1.08); box-shadow: 0 8px 20px -8px var(--accent); } }
   .water-btn:active { transform: scale(.92); }
   .water-btn.done { background: var(--surface-2); color: var(--green); border: 1px solid var(--line); box-shadow: none; }
-  /* splash burst when a plant is watered */
-  .card.splash::before {
-    content: ''; position: absolute; z-index: 3; left: var(--sx,80%); top: 50%;
-    width: 12px; height: 12px; border-radius: 50%;
-    background: var(--accent);
-    transform: translate(-50%,-50%);
-    animation: splash .6s ease-out forwards;
-    pointer-events: none;
+  /* water droplet burst when a plant is watered */
+  .drop {
+    position: fixed; z-index: 90; left: 0; top: 0; pointer-events: none;
+    border-radius: 50% 50% 50% 0;
+    background: linear-gradient(160deg, #c4b1ff, var(--accent));
+    box-shadow: 0 0 8px rgba(167,139,250,.7);
+    transform: translate(-50%,-50%) rotate(45deg) scale(.4);
+    animation: drop var(--dur, .7s) cubic-bezier(.25,.6,.4,1) forwards;
+    will-change: transform, opacity;
   }
-  @keyframes splash {
-    0%   { opacity: .9; transform: translate(-50%,-50%) scale(.3); }
-    100% { opacity: 0;  transform: translate(-50%,-50%) scale(7); }
+  @keyframes drop {
+    0%   { opacity: 1; transform: translate(-50%,-50%) rotate(45deg) scale(.4); }
+    70%  { opacity: 1; }
+    100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(45deg) scale(1); }
+  }
+  /* expanding ripple ring at the tap point */
+  .ripple {
+    position: fixed; z-index: 89; left: 0; top: 0; width: 14px; height: 14px;
+    border-radius: 50%; pointer-events: none;
+    border: 2px solid rgba(167,139,250,.8);
+    transform: translate(-50%,-50%) scale(.3);
+    animation: ripple .6s ease-out forwards;
+  }
+  @keyframes ripple {
+    0%   { opacity: .8; transform: translate(-50%,-50%) scale(.3); }
+    100% { opacity: 0;  transform: translate(-50%,-50%) scale(4.5); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .drop, .ripple { display: none; }
   }
 
   .edit-dot {
@@ -575,14 +592,36 @@ function water(id, btn){
   const p = plants.find(x=>x.id===id); if(!p) return;
   p.last = todayISO();
   save();
-  // splash burst centred on the tapped button before the list re-renders
-  const card = btn && btn.closest('.card');
-  if(card){
-    const cr = card.getBoundingClientRect(), br = btn.getBoundingClientRect();
-    card.style.setProperty('--sx', (br.left - cr.left + br.width/2) + 'px');
-    card.classList.add('splash');
+  if(btn) splashAt(btn);   // particles live on <body>, so re-rendering the list won't cut them off
+  render();
+}
+
+// burst of water droplets + a ripple ring centred on the tapped button
+function splashAt(el){
+  const r = el.getBoundingClientRect();
+  const cx = r.left + r.width/2, cy = r.top + r.height/2;
+
+  const ring = document.createElement('div');
+  ring.className = 'ripple';
+  ring.style.left = cx+'px'; ring.style.top = cy+'px';
+  document.body.appendChild(ring);
+  setTimeout(()=>ring.remove(), 700);
+
+  const n = 10;
+  for(let i=0;i<n;i++){
+    const d = document.createElement('div');
+    d.className = 'drop';
+    const ang  = (Math.PI*2*i/n) + (Math.random()-0.5)*0.5;
+    const dist = 28 + Math.random()*30;
+    const sz   = 6 + Math.random()*6;
+    d.style.left = cx+'px'; d.style.top = cy+'px';
+    d.style.width = d.style.height = sz+'px';
+    d.style.setProperty('--dx', Math.cos(ang)*dist + 'px');
+    d.style.setProperty('--dy', (Math.sin(ang)*dist + 22) + 'px'); // gravity bias downward
+    d.style.setProperty('--dur', (0.55 + Math.random()*0.35) + 's');
+    document.body.appendChild(d);
+    setTimeout(()=>d.remove(), 1000);
   }
-  setTimeout(render, 320);
 }
 
 /* ---------- editor ---------- */
