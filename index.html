@@ -15,6 +15,7 @@
     --line: #2a2a2a;
     --accent: #A78BFA;
     --accent-dim: #6b5baf;
+    --accent-tint: #292534; /* opaque equivalent of accent @ 13% over the surface — stays flat, no bleed-through */
     --text: #ededed;
     --muted: #7d7d7d;
     --green: #6ee7a8;
@@ -32,15 +33,6 @@
     min-height: 100vh;
     position: relative;
   }
-  /* ambient glow behind everything */
-  body::before {
-    content: '';
-    position: fixed; inset: 0; z-index: -1; pointer-events: none;
-    background:
-      radial-gradient(120% 70% at 80% -10%, rgba(167,139,250,.16), transparent 55%),
-      radial-gradient(90% 55% at -10% 8%, rgba(110,231,168,.07), transparent 50%),
-      var(--bg);
-  }
 
   /* ---------- header ---------- */
   header { margin-bottom: 22px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
@@ -50,19 +42,9 @@
     font-size: 38px;
     letter-spacing: 0.18em;
     line-height: 1;
-    background: linear-gradient(95deg, #fff 30%, var(--accent));
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent; color: transparent;
+    color: var(--text);
   }
-  .title .dot {
-    -webkit-text-fill-color: var(--accent); color: var(--accent);
-    display: inline-block;
-    animation: dotPulse 2.4s ease-in-out infinite;
-  }
-  @keyframes dotPulse {
-    0%, 100% { opacity: .55; transform: translateY(0) scale(1); }
-    50%      { opacity: 1;   transform: translateY(-2px) scale(1.18); }
-  }
+  .title .dot { color: var(--accent); }
   .sub {
     font-size: 11px;
     color: var(--muted);
@@ -79,17 +61,13 @@
   }
   .stat {
     flex: 1;
-    background: linear-gradient(160deg, var(--surface-2), var(--surface));
+    background: var(--surface);
     border: 1px solid var(--line);
-    border-radius: 14px;
+    border-radius: 4px;
     padding: 14px 12px;
     position: relative;
     overflow: hidden;
-    transition: transform .2s ease, border-color .2s ease;
-  }
-  .stat::after {
-    content: ''; position: absolute; inset: 0; border-radius: inherit;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.04); pointer-events: none;
+    transition: border-color .2s ease, background .2s ease;
   }
   .stat .num {
     font-family: var(--display);
@@ -101,18 +79,14 @@
     font-size: 10px;
     color: var(--muted);
     letter-spacing: 0.14em;
-    text-transform: uppercase;
+    text-transform: lowercase;
     margin-top: 7px;
   }
-  .stat.thirsty { border-color: var(--accent-dim); }
-  .stat.thirsty .num {
-    color: var(--accent);
-    text-shadow: 0 0 18px rgba(167,139,250,.45);
-  }
+  .stat.thirsty .num { color: var(--accent); }
   /* highlight the "need water" stat when something is actually due */
   .stat.thirsty.active {
     border-color: var(--accent);
-    box-shadow: 0 0 0 1px var(--accent-dim), 0 8px 24px -10px var(--accent);
+    background: var(--accent-tint);
   }
 
   /* ---------- group heading ---------- */
@@ -127,81 +101,68 @@
     font-weight: 700;
     font-size: 15px;
     letter-spacing: 0.12em;
-    text-transform: uppercase;
+    text-transform: lowercase;
   }
   .group-head .cnt { font-size: 11px; color: var(--muted); letter-spacing: 0.1em; }
 
   /* ---------- card ---------- */
   .card {
     position: relative;
-    background: linear-gradient(165deg, var(--surface-2), var(--surface));
+    background: var(--surface);
     border: 1px solid var(--line);
-    border-radius: 16px;
+    border-radius: 4px;
     padding: 16px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     overflow: hidden;
-    transition: border-color .25s ease, transform .12s ease, box-shadow .25s ease;
-    animation: cardIn .42s cubic-bezier(.2,.8,.2,1) both;
+    transition: border-color .15s ease;
   }
-  @keyframes cardIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: none; }
-  }
-  .card:active { transform: scale(.992); }
-  @media (hover:hover) {
-    .card:hover { border-color: var(--accent-dim); box-shadow: 0 10px 30px -18px rgba(0,0,0,.9); transform: translateY(-2px); }
-  }
+  .card:active { border-color: var(--accent-dim); }
+  /* thin flat moisture-level bar along the bottom edge — no gradient wash */
   .card .fill {
     position: absolute;
-    inset: 0 auto 0 0;
+    left: 0; bottom: 0;
+    height: 2px;
     width: 0%;
-    background: linear-gradient(90deg, rgba(167,139,250,.18), rgba(167,139,250,.04));
-    border-right: 1px solid rgba(167,139,250,.25);
-    transition: width .6s cubic-bezier(.2,.8,.2,1), background .4s;
+    background: var(--accent);
+    opacity: .6;
+    transition: width .6s cubic-bezier(.2,.8,.2,1);
     z-index: 0;
   }
-  /* moving shimmer along the moisture level */
-  .card .fill::after {
-    content: ''; position: absolute; top: 0; right: -2px; bottom: 0; width: 40px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,.07));
-  }
-  .card.due .fill { background: linear-gradient(90deg, rgba(240,138,138,.18), rgba(240,138,138,.04)); border-right-color: rgba(240,138,138,.3); }
-  .card.soon .fill { background: linear-gradient(90deg, rgba(240,198,116,.16), rgba(240,198,116,.03)); border-right-color: rgba(240,198,116,.28); }
-  /* overdue plants gently breathe to draw the eye */
-  .card.due {
-    border-color: rgba(240,138,138,.35);
-    animation: cardIn .42s cubic-bezier(.2,.8,.2,1) both, dueGlow 2.6s ease-in-out infinite;
-  }
-  @keyframes dueGlow {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(240,138,138,0); }
-    50%      { box-shadow: 0 0 22px -6px rgba(240,138,138,.45); }
-  }
+  .card.due .fill { background: var(--red); }
+  .card.soon .fill { background: var(--amber); }
+  /* overdue plants get a steady red border (no flashing — the status dot blinks instead) */
+  .card.due { border-color: rgba(240,138,138,.45); }
   .card-inner { position: relative; z-index: 1; display: flex; align-items: center; gap: 14px; }
 
   .glyph {
     flex: 0 0 auto;
-    width: 46px; height: 46px;
+    width: 44px; height: 44px;
     display: grid; place-items: center;
-    font-size: 24px;
+    font-size: 21px;
     background: var(--surface-2);
     border: 1px solid var(--line);
-    border-radius: 12px;
+    border-radius: 50%;
   }
+  /* desaturate the plant emoji so it reads as a muted monochrome icon */
+  .glyph span { filter: grayscale(1); opacity: .75; }
   .meta { flex: 1; min-width: 0; }
   .meta .name {
     font-family: var(--display);
     font-weight: 700;
     font-size: 17px;
     letter-spacing: 0.02em;
+    text-transform: lowercase;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .meta .species {
     font-size: 11px; color: var(--muted);
+    text-transform: lowercase;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     margin-top: 2px;
   }
   .meta .status {
     font-size: 11px; letter-spacing: 0.08em;
+    text-transform: lowercase;
     margin-top: 7px; display: flex; align-items: center; gap: 7px;
   }
   .pill {
@@ -217,22 +178,20 @@
 
   .water-btn {
     flex: 0 0 auto;
-    background: linear-gradient(160deg, #c4b1ff, var(--accent));
-    color: #14121f;
-    border: none;
+    background: var(--accent-tint);
+    color: var(--accent);
+    border: 1px solid var(--accent);
     font-family: var(--mono);
     font-weight: 700;
     font-size: 11px;
     letter-spacing: 0.08em;
     padding: 11px 13px;
-    border-radius: 11px;
+    border-radius: 3px;
     cursor: pointer;
-    box-shadow: 0 6px 16px -8px var(--accent);
-    transition: transform .1s, filter .2s, opacity .2s, box-shadow .2s;
+    transition: opacity .15s;
   }
-  @media (hover:hover) { .water-btn:hover { filter: brightness(1.08); box-shadow: 0 8px 20px -8px var(--accent); } }
-  .water-btn:active { transform: scale(.92); }
-  .water-btn.done { background: var(--surface-2); color: var(--green); border: 1px solid var(--line); box-shadow: none; }
+  .water-btn:active { opacity: .82; }
+  .water-btn.done { background: var(--surface-2); color: var(--green); border: 1px solid var(--line); }
   /* water droplet burst when a plant is watered */
   .drop {
     position: fixed; z-index: 90; left: 0; top: 0; pointer-events: none;
@@ -265,10 +224,13 @@
   }
 
   .edit-dot {
-    position: absolute; top: 10px; right: 12px; z-index: 2;
+    flex: 0 0 auto;
     color: var(--muted); font-size: 16px; line-height: 1;
     background: none; border: none; cursor: pointer; padding: 4px;
+    margin-left: -6px;
+    transition: color .15s;
   }
+  .edit-dot:active { color: var(--accent); }
 
   /* ---------- add button ---------- */
   .fab-wrap {
@@ -285,10 +247,11 @@
     color: var(--text);
     font-family: var(--mono); font-weight: 700;
     font-size: 13px; letter-spacing: 0.1em;
-    padding: 15px; border-radius: 14px; cursor: pointer;
-    transition: border-color .2s;
+    text-transform: lowercase;
+    padding: 15px; border-radius: 3px; cursor: pointer;
+    transition: opacity .2s;
   }
-  .add-btn:active { border-color: var(--accent); }
+  .add-btn:active { opacity: .82; }
 
   /* ---------- modal ---------- */
   .modal-bg {
@@ -307,12 +270,12 @@
     animation: slideUp .28s cubic-bezier(.2,.8,.2,1);
   }
   @keyframes slideUp { from { transform: translateY(40px); opacity: .4; } to { transform: none; opacity: 1; } }
-  .modal h3 { font-family: var(--display); font-weight: 800; font-size: 20px; letter-spacing: .04em; margin-bottom: 18px; }
+  .modal h3 { font-family: var(--display); font-weight: 800; font-size: 20px; letter-spacing: .04em; text-transform: lowercase; margin-bottom: 18px; }
   .field { margin-bottom: 14px; }
-  .field label { display: block; font-size: 10px; color: var(--muted); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 6px; }
+  .field label { display: block; font-size: 10px; color: var(--muted); letter-spacing: .14em; text-transform: lowercase; margin-bottom: 6px; }
   .field input, .field select {
     width: 100%; background: var(--bg); color: var(--text);
-    border: 1px solid var(--line); border-radius: 10px;
+    border: 1px solid var(--line); border-radius: 3px;
     padding: 12px; font-family: var(--mono); font-size: 14px;
   }
   .field input:focus, .field select:focus { outline: none; border-color: var(--accent); }
@@ -320,11 +283,13 @@
   .row2 .field { flex: 1; }
   .modal-actions { display: flex; gap: 10px; margin-top: 8px; }
   .btn {
-    flex: 1; padding: 14px; border-radius: 12px; cursor: pointer;
+    flex: 1; padding: 14px; border-radius: 3px; cursor: pointer;
     font-family: var(--mono); font-weight: 700; font-size: 13px; letter-spacing: .08em;
+    text-transform: lowercase;
     border: 1px solid var(--line); background: var(--surface-2); color: var(--text);
   }
-  .btn.primary { background: var(--accent); color: #14121f; border: none; }
+  .btn:active { opacity: .82; }
+  .btn.primary { background: var(--accent-tint); color: var(--accent); border: 1px solid var(--accent); }
   .btn.danger { color: var(--red); }
   .hint { font-size: 10px; color: var(--muted); letter-spacing: .04em; line-height: 1.5; margin-top: 14px; }
 
@@ -333,19 +298,19 @@
     flex: 0 0 auto;
     width: 42px; height: 42px;
     background: var(--surface); border: 1px solid var(--line); color: var(--muted);
-    border-radius: 12px; font-size: 17px; cursor: pointer;
+    border-radius: 4px; font-size: 17px; cursor: pointer;
     transition: border-color .2s, color .2s;
   }
-  .gear:active { border-color: var(--accent); color: var(--accent); }
+  .gear:active { opacity: .82; }
   .seg-label {
     font-size: 10px; color: var(--muted); letter-spacing: .14em;
-    text-transform: uppercase; margin: 20px 0 9px;
+    text-transform: lowercase; margin: 20px 0 9px;
   }
   .seg-label.first { margin-top: 2px; }
   textarea.io {
     width: 100%; min-height: 92px; resize: vertical;
     background: var(--bg); color: var(--text);
-    border: 1px solid var(--line); border-radius: 10px;
+    border: 1px solid var(--line); border-radius: 3px;
     padding: 12px; font-family: var(--mono); font-size: 11px; line-height: 1.5;
     word-break: break-all;
   }
@@ -356,7 +321,7 @@
     position: fixed; left: 50%; bottom: calc(110px + env(safe-area-inset-bottom));
     transform: translateX(-50%) translateY(10px);
     background: var(--surface-2); border: 1px solid var(--line); color: var(--text);
-    font-size: 12px; letter-spacing: .04em; padding: 11px 16px; border-radius: 10px;
+    font-size: 12px; letter-spacing: .04em; padding: 11px 16px; border-radius: 3px;
     opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 80;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -368,7 +333,7 @@
       <div class="title">TEND<span class="dot">.</span></div>
       <div class="sub" id="today-label">—</div>
     </div>
-    <button class="gear" onclick="openSettings()" aria-label="Settings">⚙</button>
+    <button class="gear" onclick="openSettings()" aria-label="Settings">⚙︎</button>
   </header>
 
   <div class="summary">
@@ -471,17 +436,17 @@ const DAY = 86400000;
 // summer baseline intervals; user-editable
 const SEED = [
   { name:'Basil',            species:'Ocimum basilicum',        group:'herb',      interval:2,  glyph:'🌿' },
-  { name:'Chives',           species:'Allium schoenoprasum',    group:'herb',      interval:3,  glyph:'🧅' },
+  { name:'Chives',           species:'Allium schoenoprasum',    group:'herb',      interval:3,  glyph:'🌿' },
   { name:'Spring onions',    species:'Allium fistulosum',       group:'herb',      interval:3,  glyph:'🧅' },
   { name:'Apple seedling 1', species:'Malus sp.',               group:'seedling',  interval:4,  glyph:'🌱' },
   { name:'Apple seedling 2', species:'Malus sp.',               group:'seedling',  interval:4,  glyph:'🌱' },
   { name:'Apple seedling 3', species:'Malus sp.',               group:'seedling',  interval:4,  glyph:'🌱' },
-  { name:'Pilea pup',        species:'Pilea peperomioides',     group:'tropical',  interval:7,  glyph:'🪙' },
-  { name:'Turtle vine',      species:'Callisia repens',         group:'tropical',  interval:6,  glyph:'🪴' },
+  { name:'Pilea pup',        species:'Pilea peperomioides',     group:'tropical',  interval:7,  glyph:'🪴' },
+  { name:'Turtle vine',      species:'Callisia repens',         group:'tropical',  interval:6,  glyph:'🌿' },
   { name:'Money tree',       species:'Pachira aquatica',        group:'tropical',  interval:9,  glyph:'🌳' },
   { name:'Rubber plant',     species:'Ficus elastica',          group:'tropical',  interval:9,  glyph:'🪴' },
-  { name:'Aloe',             species:'Aloe sp.',                group:'succulent', interval:14, glyph:'🌵' },
-  { name:'Snake plant',      species:'Dracaena trifasciata',    group:'succulent', interval:18, glyph:'🗡️' },
+  { name:'Aloe',             species:'Aloe sp.',                group:'succulent', interval:14, glyph:'🪴' },
+  { name:'Snake plant',      species:'Dracaena trifasciata',    group:'succulent', interval:18, glyph:'🪴' },
   { name:'Snake plant pup',  species:'Dracaena trifasciata',    group:'succulent', interval:16, glyph:'🌱' },
   { name:'Cane cactus',      species:'Austrocylindropuntia',    group:'succulent', interval:18, glyph:'🌵' },
   { name:'Columnar cactus',  species:'Echinopsis sp.',          group:'succulent', interval:20, glyph:'🌵' },
@@ -569,9 +534,8 @@ function render(){
       }
       card.innerHTML = `
         <div class="fill" style="width:${fillW}%"></div>
-        <button class="edit-dot" onclick="openEditor('${p.id}')">⋯</button>
         <div class="card-inner">
-          <div class="glyph">${p.glyph||'🌿'}</div>
+          <div class="glyph"><span>${p.glyph||'🌿'}</span></div>
           <div class="meta">
             <div class="name">${esc(p.name)}</div>
             <div class="species">${esc(p.species||'')}</div>
@@ -580,6 +544,7 @@ function render(){
           <button class="water-btn ${st.d===0?'done':''}" onclick="water('${p.id}', this)">
             ${st.d===0 ? '✓ DONE' : 'WATER'}
           </button>
+          <button class="edit-dot" onclick="openEditor('${p.id}')" aria-label="Edit plant">⚙︎</button>
         </div>`;
       list.appendChild(card);
     });
