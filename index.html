@@ -2,329 +2,207 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="TEND" />
+<meta name="theme-color" content="#0e0e0e" />
 <title>TEND</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@600;800&display=swap" rel="stylesheet" />
 <style>
-  :root {
-    --bg: #0e0e0e;
-    --surface: #161616;
-    --surface-2: #1d1d1d;
-    --line: #2a2a2a;
-    --accent: #A78BFA;
-    --accent-dim: #6b5baf;
-    --accent-tint: #292534; /* opaque equivalent of accent @ 13% over the surface — stays flat, no bleed-through */
-    --text: #ededed;
-    --muted: #7d7d7d;
-    --green: #6ee7a8;
-    --amber: #f0c674;
-    --red: #f08a8a;
-    --mono: 'JetBrains Mono', monospace;
-    --display: 'JetBrains Mono', monospace;
+  :root{
+    --bg:#0e0e0e; --surface:#161616; --surface-2:#1d1d1d; --line:#262626; --line-2:#333;
+    --accent:#A78BFA; --accent-tint:#241f33;
+    --text:#ededed; --muted:#7d7d7d; --dim:#4a4a4a;
+    --green:#6ee7a8; --amber:#f0c674; --red:#f08a8a; --blue:#7cc4f0;
+    --mono:'JetBrains Mono',monospace; --disp:'Syne',sans-serif;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html, body { background: var(--bg); color: var(--text); font-family: var(--mono); }
-  body {
-    max-width: 640px;
-    margin: 0 auto;
-    padding: 24px 16px calc(96px + env(safe-area-inset-bottom));
-    min-height: 100vh;
-    position: relative;
-  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{background:var(--bg);color:var(--text);font-family:var(--mono)}
+  body{max-width:600px;margin:0 auto;padding:24px 16px calc(92px + env(safe-area-inset-bottom));
+       min-height:100vh;-webkit-font-smoothing:antialiased}
 
-  /* ---------- header ---------- */
-  header { margin-bottom: 22px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-  .title {
-    font-family: var(--display);
-    font-weight: 800;
-    font-size: 38px;
-    letter-spacing: 0.18em;
-    line-height: 1;
-    color: var(--text);
-  }
-  .title .dot { color: var(--accent); }
-  .sub {
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    margin-top: 8px;
-  }
+  /* ── header ─────────────────────────────────────────────────────────── */
+  header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
+  .title{font-family:var(--disp);font-weight:800;font-size:34px;letter-spacing:.14em;line-height:1}
+  .title .dot{color:var(--accent)}
+  .sub{font-size:10px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-top:8px}
+  .gear{flex:0 0 auto;width:40px;height:40px;background:var(--surface);border:1px solid var(--line);
+        color:var(--muted);border-radius:4px;font-size:16px;cursor:pointer}
+  .gear:active{color:var(--accent)}
 
-  /* ---------- summary ---------- */
-  .summary {
-    display: flex;
-    gap: 10px;
-    margin: 18px 0 22px;
-  }
-  .stat {
-    flex: 1;
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 4px;
-    padding: 14px 12px;
-    position: relative;
-    overflow: hidden;
-    transition: border-color .2s ease, background .2s ease;
-  }
-  .stat .num {
-    font-family: var(--display);
-    font-weight: 800;
-    font-size: 30px;
-    line-height: 1;
-  }
-  .stat .lbl {
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 0.14em;
-    text-transform: lowercase;
-    margin-top: 7px;
-  }
-  .stat.thirsty .num { color: var(--accent); }
-  /* highlight the "need water" stat when something is actually due */
-  .stat.thirsty.active {
-    border-color: var(--accent);
-    background: var(--accent-tint);
-  }
+  .season{display:flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--line);
+          border-radius:4px;padding:10px 12px;font-size:10.5px;color:var(--muted);letter-spacing:.06em;margin-bottom:14px}
+  .season b{color:var(--text);font-weight:400}
+  .season .sdot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:0 0 auto}
 
-  /* ---------- group heading ---------- */
-  .group-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    margin: 26px 4px 12px;
-  }
-  .group-head h2 {
-    font-family: var(--display);
-    font-weight: 700;
-    font-size: 15px;
-    letter-spacing: 0.12em;
-    text-transform: lowercase;
-  }
-  .group-head .cnt { font-size: 11px; color: var(--muted); letter-spacing: 0.1em; }
+  /* ── tabs ───────────────────────────────────────────────────────────── */
+  .tabs{display:flex;gap:6px;margin-bottom:18px}
+  .tab{flex:1;background:var(--surface);border:1px solid var(--line);color:var(--muted);
+       font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+       padding:11px;border-radius:4px;cursor:pointer;transition:.15s}
+  .tab.on{background:var(--accent-tint);border-color:var(--accent);color:var(--accent)}
+  .view{display:none} .view.on{display:block}
 
-  /* ---------- card ---------- */
-  .card {
-    position: relative;
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 4px;
-    padding: 16px;
-    margin-bottom: 8px;
-    overflow: hidden;
-    transition: border-color .15s ease;
-  }
-  .card:active { border-color: var(--accent-dim); }
-  /* thin flat moisture-level bar along the bottom edge — no gradient wash */
-  .card .fill {
-    position: absolute;
-    left: 0; bottom: 0;
-    height: 2px;
-    width: 0%;
-    background: var(--accent);
-    opacity: .6;
-    transition: width .6s cubic-bezier(.2,.8,.2,1);
-    z-index: 0;
-  }
-  .card.due .fill { background: var(--red); }
-  .card.soon .fill { background: var(--amber); }
-  /* overdue plants get a steady red border (no flashing — the status dot blinks instead) */
-  .card.due { border-color: rgba(240,138,138,.45); }
-  .card-inner { position: relative; z-index: 1; display: flex; align-items: center; gap: 14px; }
+  /* ── round ──────────────────────────────────────────────────────────── */
+  .hero{text-align:center;padding:14px 0 22px}
+  .hero .n{font-family:var(--disp);font-weight:800;font-size:66px;line-height:.9;letter-spacing:-2px}
+  .hero .n.zero{color:var(--green)}
+  .hero .k{font-size:10px;letter-spacing:.24em;color:var(--muted);text-transform:uppercase;margin-top:12px}
+  .hero .sub2{font-size:11px;color:var(--dim);letter-spacing:.04em;margin-top:8px}
 
-  .glyph {
-    flex: 0 0 auto;
-    width: 44px; height: 44px;
-    display: grid; place-items: center;
-    font-size: 21px;
-    background: var(--surface-2);
-    border: 1px solid var(--line);
-    border-radius: 50%;
-  }
-  /* desaturate the plant emoji so it reads as a muted monochrome icon */
-  .glyph span { filter: grayscale(1); opacity: .75; }
-  .meta { flex: 1; min-width: 0; }
-  .meta .name {
-    font-family: var(--display);
-    font-weight: 700;
-    font-size: 17px;
-    letter-spacing: 0.02em;
-    text-transform: lowercase;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-  .meta .species {
-    font-size: 11px; color: var(--muted);
-    text-transform: lowercase;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    margin-top: 2px;
-  }
-  .meta .status {
-    font-size: 11px; letter-spacing: 0.08em;
-    text-transform: lowercase;
-    margin-top: 7px; display: flex; align-items: center; gap: 7px;
-  }
-  .pill {
-    display: inline-block; width: 7px; height: 7px; border-radius: 50%;
-    background: var(--green);
-    box-shadow: 0 0 8px var(--green);
-  }
-  .status.soon .pill { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
-  .status.due .pill { background: var(--red); box-shadow: 0 0 8px var(--red); animation: pillBlink 1.4s ease-in-out infinite; }
-  @keyframes pillBlink { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
-  .status.soon { color: var(--amber); }
-  .status.due { color: var(--red); }
+  .roomHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 2px 9px}
+  .roomHead h2{font-family:var(--disp);font-weight:700;font-size:13px;letter-spacing:.12em;text-transform:lowercase}
+  .doAll{background:var(--surface-2);border:1px solid var(--line);color:var(--muted);font-family:var(--mono);
+         font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;padding:7px 11px;border-radius:3px;cursor:pointer}
+  .doAll:active{border-color:var(--accent);color:var(--accent)}
 
-  .water-btn {
-    flex: 0 0 auto;
-    background: var(--accent-tint);
-    color: var(--accent);
-    border: 1px solid var(--accent);
-    font-family: var(--mono);
-    font-weight: 700;
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    padding: 11px 13px;
-    border-radius: 3px;
-    cursor: pointer;
-    transition: opacity .15s;
-  }
-  .water-btn:active { opacity: .82; }
-  .water-btn.done { background: var(--surface-2); color: var(--green); border: 1px solid var(--line); }
-  /* water droplet burst when a plant is watered */
-  .drop {
-    position: fixed; z-index: 90; left: 0; top: 0; pointer-events: none;
-    border-radius: 50% 50% 50% 0;
-    background: linear-gradient(160deg, #c4b1ff, var(--accent));
-    box-shadow: 0 0 8px rgba(167,139,250,.7);
-    transform: translate(-50%,-50%) rotate(45deg) scale(.4);
-    animation: drop var(--dur, .7s) cubic-bezier(.25,.6,.4,1) forwards;
-    will-change: transform, opacity;
-  }
-  @keyframes drop {
-    0%   { opacity: 1; transform: translate(-50%,-50%) rotate(45deg) scale(.4); }
-    70%  { opacity: 1; }
-    100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(45deg) scale(1); }
-  }
-  /* expanding ripple ring at the tap point */
-  .ripple {
-    position: fixed; z-index: 89; left: 0; top: 0; width: 14px; height: 14px;
-    border-radius: 50%; pointer-events: none;
-    border: 2px solid rgba(167,139,250,.8);
-    transform: translate(-50%,-50%) scale(.3);
-    animation: ripple .6s ease-out forwards;
-  }
-  @keyframes ripple {
-    0%   { opacity: .8; transform: translate(-50%,-50%) scale(.3); }
-    100% { opacity: 0;  transform: translate(-50%,-50%) scale(4.5); }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .drop, .ripple { display: none; }
-  }
+  .task{display:flex;align-items:center;gap:13px;background:var(--surface);border:1px solid var(--line);
+        border-radius:4px;padding:13px 14px;margin-bottom:7px;cursor:pointer;transition:.15s}
+  .task:active{border-color:var(--accent)}
+  .task.overdue{border-color:rgba(240,138,138,.4)}
+  .tick{flex:0 0 auto;width:22px;height:22px;border:1.5px solid var(--dim);border-radius:6px;
+        display:grid;place-items:center;font-size:12px;color:transparent;transition:.12s}
+  .task:active .tick{background:var(--accent);border-color:var(--accent);color:#0e0e0e}
+  .glyph{flex:0 0 auto;width:34px;height:34px;display:grid;place-items:center;font-size:18px;
+         background:var(--surface-2);border:1px solid var(--line);border-radius:50%}
+  .tmeta{flex:1;min-width:0}
+  .tname{font-size:13.5px;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .twhat{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:5px;
+         display:flex;align-items:center;gap:7px}
+  .twhat .k{padding:1px 5px;border-radius:3px;border:1px solid currentColor;font-size:8.5px}
+  .k.water{color:var(--blue)} .k.feed{color:var(--green)} .k.repot{color:var(--amber)}
+  .twhat .od{color:var(--red)}
 
-  .edit-dot {
-    flex: 0 0 auto;
-    color: var(--muted); font-size: 16px; line-height: 1;
-    background: none; border: none; cursor: pointer; padding: 4px;
-    margin-left: -6px;
-    transition: color .15s;
-  }
-  .edit-dot:active { color: var(--accent); }
+  .emptyRound{text-align:center;padding:26px 18px;background:var(--surface);border:1px solid var(--line);border-radius:4px}
+  .emptyRound .e1{font-size:13px;color:var(--text);margin-bottom:9px}
+  .emptyRound .e2{font-size:11px;color:var(--muted);line-height:1.7}
 
-  /* ---------- add button ---------- */
-  .fab-wrap {
-    position: fixed; left: 0; right: 0; bottom: 0;
-    padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
-    background: linear-gradient(180deg, transparent, var(--bg) 38%);
-    max-width: 640px; margin: 0 auto;
-    z-index: 20;
-  }
-  .add-btn {
-    width: 100%;
-    background: var(--surface);
-    border: 1px solid var(--line);
-    color: var(--text);
-    font-family: var(--mono); font-weight: 700;
-    font-size: 13px; letter-spacing: 0.1em;
-    text-transform: lowercase;
-    padding: 15px; border-radius: 3px; cursor: pointer;
-    transition: opacity .2s;
-  }
-  .add-btn:active { opacity: .82; }
+  .soonWrap{margin-top:26px}
+  .soonHead{font-size:9.5px;letter-spacing:.2em;color:var(--dim);text-transform:uppercase;margin:0 2px 10px}
+  .soon{display:flex;align-items:center;gap:11px;padding:9px 12px;background:var(--surface);
+        border:1px solid var(--line);border-radius:4px;margin-bottom:6px;opacity:.72;font-size:12px}
+  .soon .sg{font-size:14px} .soon .sn{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .soon .sd{font-size:10px;color:var(--muted);letter-spacing:.06em;white-space:nowrap}
 
-  /* ---------- modal ---------- */
-  .modal-bg {
-    position: fixed; inset: 0; z-index: 50;
-    background: rgba(0,0,0,.7);
-    display: none; align-items: flex-end; justify-content: center;
-    backdrop-filter: blur(2px);
-  }
-  .modal-bg.open { display: flex; }
-  .modal {
-    width: 100%; max-width: 640px;
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 20px 20px 0 0;
-    padding: 22px 18px calc(22px + env(safe-area-inset-bottom));
-    animation: slideUp .28s cubic-bezier(.2,.8,.2,1);
-  }
-  @keyframes slideUp { from { transform: translateY(40px); opacity: .4; } to { transform: none; opacity: 1; } }
-  .modal h3 { font-family: var(--display); font-weight: 800; font-size: 20px; letter-spacing: .04em; text-transform: lowercase; margin-bottom: 18px; }
-  .field { margin-bottom: 14px; }
-  .field label { display: block; font-size: 10px; color: var(--muted); letter-spacing: .14em; text-transform: lowercase; margin-bottom: 6px; }
-  .field input, .field select {
-    width: 100%; background: var(--bg); color: var(--text);
-    border: 1px solid var(--line); border-radius: 3px;
-    padding: 12px; font-family: var(--mono); font-size: 14px;
-  }
-  .field input:focus, .field select:focus { outline: none; border-color: var(--accent); }
-  .row2 { display: flex; gap: 10px; }
-  .row2 .field { flex: 1; }
-  .modal-actions { display: flex; gap: 10px; margin-top: 8px; }
-  .btn {
-    flex: 1; padding: 14px; border-radius: 3px; cursor: pointer;
-    font-family: var(--mono); font-weight: 700; font-size: 13px; letter-spacing: .08em;
-    text-transform: lowercase;
-    border: 1px solid var(--line); background: var(--surface-2); color: var(--text);
-  }
-  .btn:active { opacity: .82; }
-  .btn.primary { background: var(--accent-tint); color: var(--accent); border: 1px solid var(--accent); }
-  .btn.danger { color: var(--red); }
-  .hint { font-size: 10px; color: var(--muted); letter-spacing: .04em; line-height: 1.5; margin-top: 14px; }
+  /* ── shelf ──────────────────────────────────────────────────────────── */
+  .shelfBar{display:flex;gap:6px;margin-bottom:16px}
+  .sortBtn{flex:1;background:var(--surface);border:1px solid var(--line);color:var(--muted);font-family:var(--mono);
+           font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;padding:9px;border-radius:3px;cursor:pointer}
+  .sortBtn.on{border-color:var(--accent);color:var(--accent)}
 
-  /* settings */
-  .gear {
-    flex: 0 0 auto;
-    width: 42px; height: 42px;
-    background: var(--surface); border: 1px solid var(--line); color: var(--muted);
-    border-radius: 4px; font-size: 17px; cursor: pointer;
-    transition: border-color .2s, color .2s;
-  }
-  .gear:active { opacity: .82; }
-  .seg-label {
-    font-size: 10px; color: var(--muted); letter-spacing: .14em;
-    text-transform: lowercase; margin: 20px 0 9px;
-  }
-  .seg-label.first { margin-top: 2px; }
-  textarea.io {
-    width: 100%; min-height: 92px; resize: vertical;
-    background: var(--bg); color: var(--text);
-    border: 1px solid var(--line); border-radius: 3px;
-    padding: 12px; font-family: var(--mono); font-size: 11px; line-height: 1.5;
-    word-break: break-all;
-  }
-  textarea.io:focus { outline: none; border-color: var(--accent); }
-  .file-btn { position: relative; overflow: hidden; }
-  .file-btn input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-  .toast {
-    position: fixed; left: 50%; bottom: calc(110px + env(safe-area-inset-bottom));
-    transform: translateX(-50%) translateY(10px);
-    background: var(--surface-2); border: 1px solid var(--line); color: var(--text);
-    font-size: 12px; letter-spacing: .04em; padding: 11px 16px; border-radius: 3px;
-    opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 80;
-  }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .row{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);
+       border-radius:4px;padding:12px 13px;margin-bottom:7px;cursor:pointer;transition:border-color .15s}
+  .row:active{border-color:var(--accent)}
+  .rmeta{flex:1;min-width:0}
+  .rname{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rspec{font-size:10px;color:var(--dim);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .meter{height:4px;background:var(--surface-2);border-radius:3px;margin-top:8px;overflow:hidden}
+  .meter i{display:block;height:100%;width:0;border-radius:3px;background:var(--accent);
+           transition:width .55s cubic-bezier(.2,.8,.2,1)}
+  .meter i.soon{background:var(--amber)} .meter i.due{background:var(--red)}
+  .rday{flex:0 0 auto;text-align:right;font-size:10px;color:var(--muted);letter-spacing:.06em;line-height:1.5}
+  .rday b{display:block;font-family:var(--disp);font-weight:800;font-size:15px;color:var(--text)}
+  .rday.due b{color:var(--red)} .rday.soon b{color:var(--amber)}
+
+  /* ── sheets ─────────────────────────────────────────────────────────── */
+  .modal-bg{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.72);display:none;
+            align-items:flex-end;justify-content:center;backdrop-filter:blur(2px)}
+  .modal-bg.open{display:flex}
+  .modal{width:100%;max-width:600px;background:var(--surface);border:1px solid var(--line);
+         border-radius:16px 16px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom));
+         max-height:92vh;overflow-y:auto;animation:up .26s cubic-bezier(.2,.8,.2,1)}
+  @keyframes up{from{transform:translateY(36px);opacity:.4}to{transform:none;opacity:1}}
+  .modal h3{font-family:var(--disp);font-weight:800;font-size:18px;letter-spacing:.04em;
+            text-transform:lowercase;margin-bottom:16px}
+  .grab{width:34px;height:3px;background:var(--line-2);border-radius:2px;margin:0 auto 16px}
+
+  .field{margin-bottom:12px}
+  .field label{display:block;font-size:9.5px;color:var(--muted);letter-spacing:.14em;
+               text-transform:lowercase;margin-bottom:6px}
+  .field input,.field select,.field textarea{width:100%;background:var(--bg);color:var(--text);
+    border:1px solid var(--line);border-radius:3px;padding:11px;font-family:var(--mono);font-size:13px}
+  .field textarea{min-height:64px;resize:vertical;line-height:1.6}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--accent)}
+  .row2{display:flex;gap:9px} .row2 .field{flex:1}
+  .fieldNote{font-size:9.5px;color:var(--dim);letter-spacing:.03em;margin-top:5px;line-height:1.5}
+
+  .acts{display:flex;gap:9px;margin-top:8px}
+  .btn{flex:1;padding:13px;border-radius:3px;cursor:pointer;font-family:var(--mono);font-size:12px;
+       letter-spacing:.08em;text-transform:lowercase;border:1px solid var(--line);
+       background:var(--surface-2);color:var(--text)}
+  .btn:active{opacity:.8}
+  .btn.primary{background:var(--accent-tint);color:var(--accent);border-color:var(--accent)}
+  .btn.danger{color:var(--red)}
+  .hint{font-size:9.5px;color:var(--dim);letter-spacing:.03em;line-height:1.6;margin-top:14px}
+
+  /* detail sheet */
+  .dHead{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+  .dHead .glyph{width:52px;height:52px;font-size:26px}
+  .dName{font-family:var(--disp);font-weight:800;font-size:19px;letter-spacing:.02em;text-transform:lowercase}
+  .dSpec{font-size:11px;color:var(--muted);margin-top:4px}
+  .dRoom{font-size:9.5px;color:var(--dim);letter-spacing:.12em;text-transform:uppercase;margin-top:6px}
+
+  .careGrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px}
+  .care{background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:11px 8px;text-align:center}
+  .care .cv{font-family:var(--disp);font-weight:800;font-size:17px}
+  .care .ck{font-size:8.5px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-top:5px}
+  .care .ce{font-size:8.5px;color:var(--dim);margin-top:3px}
+  .care.due .cv{color:var(--red)} .care.soon .cv{color:var(--amber)} .care.off .cv{color:var(--dim)}
+
+  .logRow{display:flex;gap:7px;margin-bottom:10px}
+  .logBtn{flex:1;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:var(--mono);
+          font-size:10.5px;letter-spacing:.08em;text-transform:lowercase;padding:11px 6px;border-radius:3px;cursor:pointer}
+  .logBtn:active{border-color:var(--accent);color:var(--accent)}
+  .logDate{width:100%;background:var(--bg);color:var(--muted);border:1px solid var(--line);border-radius:3px;
+           padding:9px 11px;font-family:var(--mono);font-size:11px;margin-bottom:14px}
+
+  .sug{background:var(--accent-tint);border:1px solid var(--accent);border-radius:4px;padding:12px;
+       font-size:10.5px;line-height:1.6;color:var(--text);margin-bottom:14px}
+  .sug b{color:var(--accent);font-weight:400}
+  .sug button{margin-top:9px;background:none;border:1px solid var(--accent);color:var(--accent);
+              font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+              padding:7px 11px;border-radius:3px;cursor:pointer}
+
+  .secLbl{font-size:9.5px;letter-spacing:.16em;color:var(--muted);text-transform:lowercase;margin:18px 0 9px}
+  .hist{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:11px}
+  .hist:first-of-type{border-top:none}
+  .hist .ht{flex:0 0 54px;font-size:8.5px;letter-spacing:.1em;text-transform:uppercase}
+  .hist .hd{flex:1;color:var(--muted);font-size:10.5px}
+  .hist .hn{color:var(--dim);font-size:10px;font-style:italic}
+  .hist .hx{background:none;border:none;color:var(--dim);font-size:14px;cursor:pointer;padding:2px 5px}
+  .hist .hx:active{color:var(--red)}
+  .histEmpty{font-size:10.5px;color:var(--dim);padding:6px 0}
+
+  /* season curve */
+  .curve{display:flex;align-items:flex-end;gap:3px;height:52px;margin:10px 0 6px}
+  .curve div{flex:1;background:var(--surface-2);border-radius:2px 2px 0 0;position:relative}
+  .curve div.now{background:var(--accent)}
+  .curveX{display:flex;gap:3px;font-size:7.5px;color:var(--dim);letter-spacing:.02em}
+  .curveX span{flex:1;text-align:center}
+
+  /* ── chrome ─────────────────────────────────────────────────────────── */
+  .fab-wrap{position:fixed;left:0;right:0;bottom:0;padding:14px 16px calc(14px + env(safe-area-inset-bottom));
+            background:linear-gradient(180deg,transparent,var(--bg) 38%);max-width:600px;margin:0 auto;z-index:20}
+  .add-btn{width:100%;background:var(--surface);border:1px solid var(--line);color:var(--text);
+           font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:lowercase;
+           padding:14px;border-radius:3px;cursor:pointer}
+  .add-btn:active{border-color:var(--accent);color:var(--accent)}
+
+  .undo{position:fixed;left:50%;transform:translateX(-50%) translateY(14px);
+        bottom:calc(84px + env(safe-area-inset-bottom));background:var(--surface-2);border:1px solid var(--accent);
+        border-radius:30px;padding:9px 9px 9px 18px;display:flex;align-items:center;gap:12px;
+        font-size:11px;letter-spacing:.04em;opacity:0;pointer-events:none;transition:.2s;z-index:40;white-space:nowrap}
+  .undo.on{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}
+  .undo button{background:var(--accent-tint);border:1px solid var(--accent);color:var(--accent);
+               font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+               padding:6px 12px;border-radius:20px;cursor:pointer}
+  .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(10px);
+         background:var(--surface-2);border:1px solid var(--line);font-size:11.5px;letter-spacing:.04em;
+         padding:10px 16px;border-radius:30px;opacity:0;pointer-events:none;transition:.2s;z-index:41;white-space:nowrap}
+  .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
@@ -333,389 +211,689 @@
       <div class="title">TEND<span class="dot">.</span></div>
       <div class="sub" id="today-label">—</div>
     </div>
-    <button class="gear" onclick="openSettings()" aria-label="Settings">⚙︎</button>
+    <button class="gear" id="btn-settings" aria-label="Settings">⚙︎</button>
   </header>
 
-  <div class="summary">
-    <div class="stat thirsty"><div class="num" id="stat-due">0</div><div class="lbl">need water</div></div>
-    <div class="stat"><div class="num" id="stat-soon">0</div><div class="lbl">due soon</div></div>
-    <div class="stat"><div class="num" id="stat-total">0</div><div class="lbl">plants</div></div>
-  </div>
+  <div class="season" id="season"></div>
 
-  <div id="list"></div>
+  <nav class="tabs">
+    <button class="tab on" data-view="round">round</button>
+    <button class="tab" data-view="shelf">shelf</button>
+  </nav>
 
-  <div class="fab-wrap">
-    <button class="add-btn" onclick="openEditor()">+ ADD PLANT</button>
-  </div>
+  <section id="view-round" class="view on"></section>
+  <section id="view-shelf" class="view"></section>
 
-  <!-- editor modal -->
-  <div class="modal-bg" id="modal">
-    <div class="modal">
-      <h3 id="modal-title">EDIT PLANT</h3>
-      <div class="field">
-        <label>Name</label>
-        <input id="f-name" type="text" placeholder="e.g. Kitchen basil" />
-      </div>
-      <div class="field">
-        <label>Species</label>
-        <input id="f-species" type="text" placeholder="e.g. Ocimum basilicum" />
-      </div>
-      <div class="row2">
-        <div class="field">
-          <label>Group</label>
-          <select id="f-group">
-            <option value="herb">Herb / edible</option>
-            <option value="tropical">Tropical foliage</option>
-            <option value="seedling">Seedling</option>
-            <option value="succulent">Cactus / succulent</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Water every (days)</label>
-          <input id="f-interval" type="number" min="1" max="60" />
-        </div>
-      </div>
-      <div class="row2">
-        <div class="field">
-          <label>Last watered</label>
-          <input id="f-last" type="date" />
-        </div>
-        <div class="field">
-          <label>Glyph</label>
-          <input id="f-glyph" type="text" maxlength="2" placeholder="🌿" />
-        </div>
-      </div>
-      <div class="modal-actions">
-        <button class="btn" onclick="closeEditor()">CANCEL</button>
-        <button class="btn primary" onclick="saveEditor()">SAVE</button>
-      </div>
-      <div class="modal-actions" id="delete-row" style="margin-top:10px; display:none;">
-        <button class="btn danger" onclick="deletePlant()">DELETE PLANT</button>
-      </div>
-      <p class="hint">Intervals are summer baselines — in winter, roughly double them. Water-loving herbs first; cacti and snake plants rarely. Adjust anything that doesn't match your room.</p>
-    </div>
-  </div>
+  <div class="fab-wrap"><button class="add-btn" id="btn-add">+ add plant</button></div>
 
-  <!-- settings modal -->
-  <div class="modal-bg" id="settings">
-    <div class="modal">
-      <h3>SETTINGS</h3>
-
-      <div class="seg-label first">Export — copy or download, then import on another device</div>
-      <textarea class="io" id="export-box" readonly onclick="this.select()"></textarea>
-      <div class="modal-actions" style="margin-top:10px;">
-        <button class="btn" onclick="doCopy()">COPY</button>
-        <button class="btn primary" onclick="doDownload()">DOWNLOAD .JSON</button>
-      </div>
-
-      <div class="seg-label">Import — paste backup text or pick a file</div>
-      <textarea class="io" id="import-box" placeholder="Paste exported text here…"></textarea>
-      <div class="modal-actions" style="margin-top:10px;">
-        <button class="btn file-btn">PICK FILE<input type="file" accept=".json,application/json" onchange="importFile(event)" /></button>
-        <button class="btn primary" onclick="importPaste()">IMPORT</button>
-      </div>
-
-      <div class="seg-label">Reset</div>
-      <div class="modal-actions">
-        <button class="btn danger" onclick="clearData()">CLEAR ALL DATA</button>
-      </div>
-
-      <div class="modal-actions" style="margin-top:14px;">
-        <button class="btn" onclick="closeSettings()">CLOSE</button>
-      </div>
-      <p class="hint">Clearing wipes your saved list and watering history, then reloads the default plants. Export first if you want a backup.</p>
-    </div>
-  </div>
-
+  <div class="undo" id="undo"><span id="undo-txt"></span><button id="undo-btn">undo</button></div>
   <div class="toast" id="toast"></div>
 
+  <!-- detail -->
+  <div class="modal-bg" id="sheet-detail"><div class="modal"><div class="grab"></div><div id="detail-body"></div></div></div>
+
+  <!-- editor -->
+  <div class="modal-bg" id="sheet-edit"><div class="modal">
+    <div class="grab"></div>
+    <h3 id="edit-title">edit plant</h3>
+    <div class="field"><label>name</label><input id="f-name" type="text" placeholder="kitchen basil" /></div>
+    <div class="field"><label>species</label><input id="f-species" type="text" placeholder="ocimum basilicum" /></div>
+    <div class="row2">
+      <div class="field"><label>room</label><input id="f-room" type="text" list="roomlist" placeholder="kitchen" />
+        <datalist id="roomlist"></datalist></div>
+      <div class="field"><label>glyph</label><input id="f-glyph" type="text" maxlength="2" placeholder="🌿" /></div>
+    </div>
+    <div class="field"><label>type</label><select id="f-group"></select>
+      <div class="fieldNote" id="groupNote"></div></div>
+    <div class="row2">
+      <div class="field"><label>water every (summer days)</label><input id="f-water" type="number" min="1" max="120" /></div>
+      <div class="field"><label>feed every (days, 0 = never)</label><input id="f-feed" type="number" min="0" max="180" /></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>repot every (months, 0 = never)</label><input id="f-repot" type="number" min="0" max="60" /></div>
+      <div class="field"><label>last watered</label><input id="f-last" type="date" /></div>
+    </div>
+    <div class="field"><label>notes</label><textarea id="f-notes" placeholder="south window, drops leaves if it dries out…"></textarea></div>
+    <div class="acts"><button class="btn" data-act="close-edit">cancel</button><button class="btn primary" data-act="save-edit">save</button></div>
+    <div class="acts" id="delete-row" style="margin-top:9px;display:none"><button class="btn danger" data-act="delete-plant">delete plant</button></div>
+    <p class="hint">Water intervals are <b>summer baselines</b>. TEND stretches them automatically through autumn and winter — you never need to edit them for the season.</p>
+  </div></div>
+
+  <!-- settings -->
+  <div class="modal-bg" id="sheet-settings"><div class="modal">
+    <div class="grab"></div>
+    <h3>settings</h3>
+
+    <div class="secLbl">season adjustment</div>
+    <div class="field">
+      <input id="f-season" type="range" min="0" max="100" step="5" style="padding:0;border:none;background:none;accent-color:var(--accent)" />
+      <div class="fieldNote" id="seasonNote"></div>
+    </div>
+    <div class="curve" id="curve"></div>
+    <div class="curveX" id="curveX"></div>
+    <div class="fieldNote" style="margin-top:8px">Bar height is how far intervals stretch that month. At 0% every month is treated like summer.</div>
+
+    <div class="secLbl">export</div>
+    <div class="acts"><button class="btn" data-act="copy">copy</button><button class="btn primary" data-act="download">download .json</button></div>
+
+    <div class="secLbl">import</div>
+    <div class="field"><textarea id="import-box" placeholder="paste a backup here…"></textarea></div>
+    <div class="acts">
+      <button class="btn" style="position:relative;overflow:hidden">pick file
+        <input type="file" id="f-file" accept=".json,application/json" style="position:absolute;inset:0;opacity:0;cursor:pointer" /></button>
+      <button class="btn primary" data-act="import">import</button>
+    </div>
+
+    <div class="secLbl">reset</div>
+    <div class="acts"><button class="btn danger" data-act="clear">clear all data</button></div>
+    <div class="acts" style="margin-top:14px"><button class="btn" data-act="close-settings">close</button></div>
+    <p class="hint">Export carries your plants <em>and</em> their full care history. Clearing wipes both.</p>
+  </div></div>
+
 <script>
-const STORE = 'tend.plants.v2';
-const DAY = 86400000;
+'use strict';
+/* ═════════════════════════════════════════════════════════════════════════
+   TEND — plant care
+   Model: plants hold intervals, a separate append-only EVENT LOG holds what
+   actually happened. Every "when is this due" answer is derived from the log,
+   which is what makes undo, history and the observed-interval nudge possible.
+   ═════════════════════════════════════════════════════════════════════════ */
+const STORE='tend.v3', LEGACY='tend.plants.v2';
 
-// summer baseline intervals; user-editable
-const SEED = [
-  { name:'Basil',            species:'Ocimum basilicum',        group:'herb',      interval:2,  glyph:'🌿' },
-  { name:'Chives',           species:'Allium schoenoprasum',    group:'herb',      interval:3,  glyph:'🌿' },
-  { name:'Spring onions',    species:'Allium fistulosum',       group:'herb',      interval:3,  glyph:'🧅' },
-  { name:'Apple seedling 1', species:'Malus sp.',               group:'seedling',  interval:4,  glyph:'🌱' },
-  { name:'Apple seedling 2', species:'Malus sp.',               group:'seedling',  interval:4,  glyph:'🌱' },
-  { name:'Apple seedling 3', species:'Malus sp.',               group:'seedling',  interval:4,  glyph:'🌱' },
-  { name:'Pilea pup',        species:'Pilea peperomioides',     group:'tropical',  interval:7,  glyph:'🪴' },
-  { name:'Turtle vine',      species:'Callisia repens',         group:'tropical',  interval:6,  glyph:'🌿' },
-  { name:'Money tree',       species:'Pachira aquatica',        group:'tropical',  interval:9,  glyph:'🌳' },
-  { name:'Rubber plant',     species:'Ficus elastica',          group:'tropical',  interval:9,  glyph:'🪴' },
-  { name:'Aloe',             species:'Aloe sp.',                group:'succulent', interval:14, glyph:'🪴' },
-  { name:'Snake plant',      species:'Dracaena trifasciata',    group:'succulent', interval:18, glyph:'🪴' },
-  { name:'Snake plant pup',  species:'Dracaena trifasciata',    group:'succulent', interval:16, glyph:'🌱' },
-  { name:'Cane cactus',      species:'Austrocylindropuntia',    group:'succulent', interval:18, glyph:'🌵' },
-  { name:'Columnar cactus',  species:'Echinopsis sp.',          group:'succulent', interval:20, glyph:'🌵' },
+/* Relative growth through the year (Jan…Dec, northern hemisphere).
+   One curve drives everything: watering stretches as growth falls, and
+   feeding stops altogether once the plant is basically dormant. */
+const GROWTH=[.10,.20,.50,.80,1,1,1,1,.80,.50,.20,.10];
+const FEED_FLOOR=.4;                       // below this, don't feed at all
+const SEASONS=['winter','winter','spring','spring','spring','summer',
+               'summer','summer','autumn','autumn','autumn','winter'];
+
+const GROUPS=[
+  {key:'herb',      label:'herb / edible',      season:.6, note:'Drinks steadily even indoors in winter — only mildly seasonal.'},
+  {key:'seedling',  label:'seedling',           season:.7, note:'Keep evenly moist. Small pots dry out fast.'},
+  {key:'tropical',  label:'tropical foliage',   season:1,  note:'Slows down noticeably in winter. Let the top few cm dry.'},
+  {key:'succulent', label:'cactus / succulent', season:1.5,note:'Nearly dormant in winter — stretch hard, and never feed then.'}
+];
+const TASKS=[
+  {key:'water', label:'water', verb:'watered'},
+  {key:'feed',  label:'feed',  verb:'fed'},
+  {key:'repot', label:'repot', verb:'repotted'}
+];
+const SEED=[
+  ['Basil','Ocimum basilicum','herb',2,'🌿','kitchen'],
+  ['Chives','Allium schoenoprasum','herb',3,'🌿','kitchen'],
+  ['Spring onions','Allium fistulosum','herb',3,'🧅','kitchen'],
+  ['Apple seedling 1','Malus sp.','seedling',4,'🌱','windowsill'],
+  ['Apple seedling 2','Malus sp.','seedling',4,'🌱','windowsill'],
+  ['Apple seedling 3','Malus sp.','seedling',4,'🌱','windowsill'],
+  ['Pilea pup','Pilea peperomioides','tropical',7,'🪴','living room'],
+  ['Turtle vine','Callisia repens','tropical',6,'🌿','living room'],
+  ['Money tree','Pachira aquatica','tropical',9,'🌳','living room'],
+  ['Rubber plant','Ficus elastica','tropical',9,'🪴','living room'],
+  ['Aloe','Aloe sp.','succulent',14,'🪴','windowsill'],
+  ['Snake plant','Dracaena trifasciata','succulent',18,'🪴','bedroom'],
+  ['Snake plant pup','Dracaena trifasciata','succulent',16,'🌱','bedroom'],
+  ['Cane cactus','Austrocylindropuntia','succulent',18,'🌵','windowsill'],
+  ['Columnar cactus','Echinopsis sp.','succulent',20,'🌵','windowsill']
 ];
 
-const GROUPS = [
-  { key:'herb',      label:'Herbs — thirsty' },
-  { key:'seedling',  label:'Seedlings — keep moist' },
-  { key:'tropical',  label:'Tropical — moderate' },
-  { key:'succulent', label:'Cacti & succulents — rare' },
-];
+/* ═══ dates — all local, never toISOString (that shifts to UTC and can
+       report yesterday for anyone east of Greenwich) ════════════════════ */
+const pad=n=>String(n).padStart(2,'0');
+const isoOf=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const todayISO=()=>isoOf(new Date());
+const D=s=>{const p=String(s).split('-').map(Number);return new Date(p[0],p[1]-1,p[2],12,0,0);};
+const daysBetween=(a,b)=>Math.round((D(b)-D(a))/864e5);
+const addDays=(s,n)=>{const d=D(s);d.setDate(d.getDate()+n);return isoOf(d);};
+const fmtDay=s=>D(s).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
 
-let plants = [];
-let editingId = null;
+/* ═══ state ══════════════════════════════════════════════════════════════ */
+let DB={v:3,plants:[],events:[],settings:{seasonSensitivity:1,sort:'room'}};
+let uid=0; const newId=p=>p+'_'+Date.now().toString(36)+'_'+(uid++).toString(36);
 
-function todayISO(){ const d=new Date(); d.setHours(0,0,0,0); return d.toISOString().slice(0,10); }
-function load(){
-  try { plants = JSON.parse(localStorage.getItem(STORE)) || null; } catch(e){ plants = null; }
-  if(!plants){
-    // fresh launch with no data: start every plant in the "to water" state
-    // by back-dating its last watering by its full interval (ratio = 1 → due).
-    const now = Date.now();
-    plants = SEED.map((p,i)=>{
-      const d = new Date(); d.setHours(0,0,0,0);
-      d.setDate(d.getDate() - p.interval);
-      return { id:'p'+i+'_'+now, last:d.toISOString().slice(0,10), ...p };
+function seedPlants(){
+  return SEED.map(s=>({
+    id:newId('p'),name:s[0],species:s[1],group:s[2],glyph:s[4],room:s[5],
+    every:{water:s[3],feed:s[2]==='succulent'?0:21,repot:12},notes:'',added:todayISO()
+  }));
+}
+
+function migrate(old){
+  // v2 stored one `last` date per plant. Turn each into a single water event
+  // so the log starts truthful rather than pretending to a history it lacks.
+  const plants=[],events=[];
+  old.forEach(p=>{
+    const id=newId('p'), hasLast=/^\d{4}-\d{2}-\d{2}$/.test(p.last);
+    plants.push({
+      id,name:String(p.name||'Plant'),species:String(p.species||''),
+      group:GROUPS.some(g=>g.key===p.group)?p.group:'tropical',
+      glyph:String(p.glyph||'🌿').slice(0,2),room:'',
+      every:{water:Math.max(1,parseInt(p.interval)||7),feed:p.group==='succulent'?0:21,repot:12},
+      notes:'',added:hasLast?p.last:todayISO()
     });
-    save();
-  }
+    if(hasLast) events.push({id:newId('e'),plant:id,type:'water',date:p.last});
+  });
+  return {v:3,plants,events,settings:{seasonSensitivity:1,sort:'room'}};
 }
-function save(){ try { localStorage.setItem(STORE, JSON.stringify(plants)); } catch(e){} }
 
-function daysSince(iso){
-  const a = new Date(iso+'T00:00:00'); const b = new Date(todayISO()+'T00:00:00');
-  return Math.round((b-a)/DAY);
+function load(){
+  let raw=null;
+  try{ raw=JSON.parse(localStorage.getItem(STORE)||'null'); }catch(e){}
+  // normalise, then write straight back so storage never keeps rows the app
+  // has already decided to ignore (orphaned events, unknown care types)
+  if(raw&&Array.isArray(raw.plants)){ DB=normalise(raw); save(); return; }
+
+  let old=null;
+  try{ old=JSON.parse(localStorage.getItem(LEGACY)||'null'); }catch(e){}
+  if(Array.isArray(old)&&old.length){ DB=migrate(old); save(); toast('Brought '+old.length+' plants across'); return; }
+
+  DB={v:3,plants:seedPlants(),events:[],settings:{seasonSensitivity:1,sort:'room'}};
+  save();
 }
-function state(p){
-  const d = daysSince(p.last);
-  const ratio = d / p.interval;       // 0 = just watered, 1 = due
-  const moisture = Math.max(0, Math.min(1, 1 - ratio));
-  let s = 'fine';
-  if(ratio >= 1) s = 'due';
-  else if(ratio >= 0.7) s = 'soon';
-  return { d, ratio, moisture, s };
+function normalise(raw){
+  const s=Object.assign({seasonSensitivity:1,sort:'room'},raw.settings||{});
+  s.seasonSensitivity=Math.max(0,Math.min(2,+s.seasonSensitivity||0));
+  const plants=raw.plants.filter(p=>p&&p.name).map(p=>({
+    id:String(p.id||newId('p')),name:String(p.name),species:String(p.species||''),
+    group:GROUPS.some(g=>g.key===p.group)?p.group:'tropical',
+    glyph:String(p.glyph||'🌿').slice(0,2),room:String(p.room||''),
+    every:{
+      water:Math.max(1,parseInt(p.every&&p.every.water)||parseInt(p.interval)||7),
+      feed :Math.max(0,parseInt(p.every&&p.every.feed )||0),
+      repot:Math.max(0,parseInt(p.every&&p.every.repot)||0)
+    },
+    notes:String(p.notes||''),
+    added:/^\d{4}-\d{2}-\d{2}$/.test(p.added)?p.added:todayISO()
+  }));
+  const ids=new Set(plants.map(p=>p.id));
+  const events=(Array.isArray(raw.events)?raw.events:[]).filter(e=>
+    e&&ids.has(e.plant)&&TASKS.some(t=>t.key===e.type)&&/^\d{4}-\d{2}-\d{2}$/.test(e.date)
+  ).map(e=>({id:String(e.id||newId('e')),plant:e.plant,type:e.type,date:e.date,note:e.note?String(e.note):''}));
+  return {v:3,plants,events,settings:s};
 }
+function save(){ try{ localStorage.setItem(STORE,JSON.stringify(DB)); }catch(e){} }
+
+/* ═══ season ═════════════════════════════════════════════════════════════ */
+const growthOf=d=>GROWTH[(d||new Date()).getMonth()];
+function waterStretch(group,date){
+  // 1.0 in summer, up to ~1.8 in deep winter, weighted by how seasonal the type is
+  const raw=1/(0.5+0.5*growthOf(date));
+  const g=GROUPS.find(x=>x.key===group)||GROUPS[2];
+  return 1+(raw-1)*DB.settings.seasonSensitivity*g.season;
+}
+function effEvery(p,type,date){
+  const base=p.every[type]||0;
+  if(!base) return 0;                                     // 0 = not tracked
+  if(type==='water') return Math.max(1,Math.round(base*waterStretch(p.group,date)));
+  if(type==='feed'){
+    const g=growthOf(date);
+    if(g<FEED_FLOOR) return -1;                           // -1 = suspended for the season
+    return Math.max(7,Math.round(base/g));
+  }
+  return base*30;                                          // repot: months → days
+}
+
+/* ═══ derived ════════════════════════════════════════════════════════════ */
+const eventsFor=(pid,type)=>DB.events.filter(e=>e.plant===pid&&e.type===type)
+                                     .sort((a,b)=>a.date<b.date?1:-1);
+const lastOf=(pid,type)=>{ const e=eventsFor(pid,type)[0]; return e?e.date:null; };
+
+function status(p,type){
+  const every=effEvery(p,type);
+  if(every===0)  return {tracked:false};
+  if(every===-1) return {tracked:true,suspended:true,state:'off'};
+  // No event of this type yet? Count from the day the plant entered the app.
+  // Claiming it was watered then would be a lie; starting its clock then is not,
+  // and it keeps a fresh install from opening with everything screaming overdue.
+  const logged=lastOf(p.id,type);
+  const last=logged||p.added||todayISO();
+  const days=daysBetween(last,todayISO());
+  const ratio=days/every;
+  return {tracked:true,last,logged:!!logged,every,days,ratio,
+          over:Math.max(0,days-every),
+          left:every-days,
+          state:ratio>=1?'due':ratio>=.75?'soon':'fine'};
+}
+function dueTasks(){
+  const out=[];
+  DB.plants.forEach(p=>TASKS.forEach(t=>{
+    const st=status(p,t.key);
+    if(st.tracked&&!st.suspended&&st.state==='due') out.push({p,t,st});
+  }));
+  return out.sort((a,b)=>(b.st.over-a.st.over)||(a.p.name>b.p.name?1:-1));
+}
+function soonTasks(){
+  const out=[];
+  DB.plants.forEach(p=>TASKS.forEach(t=>{
+    const st=status(p,t.key);
+    if(st.tracked&&!st.suspended&&st.state==='soon') out.push({p,t,st});
+  }));
+  return out.sort((a,b)=>a.st.left-b.st.left);
+}
+function observedEvery(pid,type){
+  const ds=eventsFor(pid,type).map(e=>e.date);
+  if(ds.length<3) return null;
+  const gaps=[];
+  for(let i=0;i<Math.min(ds.length-1,6);i++) gaps.push(daysBetween(ds[i+1],ds[i]));
+  gaps.sort((a,b)=>a-b);
+  return gaps[Math.floor(gaps.length/2)];
+}
+const roomsList=()=>{
+  const s=new Set(DB.plants.map(p=>p.room).filter(Boolean));
+  return [...s].sort();
+};
+const roomName=r=>r||'unsorted';
+
+/* ═══ actions ════════════════════════════════════════════════════════════ */
+let lastBatch=null, undoT;
+function logCare(pid,type,date,note){
+  const ev={id:newId('e'),plant:pid,type,date:date||todayISO(),note:note||''};
+  DB.events.push(ev); return ev.id;
+}
+function doTasks(items,label){
+  const ids=items.map(it=>logCare(it.p.id,it.t.key,todayISO()));
+  save(); render(); offerUndo(label,ids);
+}
+function offerUndo(label,ids){
+  lastBatch=ids;
+  const bar=document.getElementById('undo');
+  document.getElementById('undo-txt').textContent=label;
+  bar.classList.add('on');
+  clearTimeout(undoT); undoT=setTimeout(()=>bar.classList.remove('on'),7000);
+}
+function undoLast(){
+  if(!lastBatch) return;
+  const s=new Set(lastBatch);
+  DB.events=DB.events.filter(e=>!s.has(e.id));
+  lastBatch=null; save(); render();
+  document.getElementById('undo').classList.remove('on');
+  toast('Undone');
+}
+
+/* ═══ render ═════════════════════════════════════════════════════════════ */
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let view='round';
 
 function render(){
-  document.getElementById('today-label').textContent =
-    new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'}).toUpperCase();
+  const now=new Date();
+  document.getElementById('today-label').textContent=
+    now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'}).toUpperCase();
 
-  let due=0, soon=0;
-  plants.forEach(p=>{ const st=state(p); if(st.s==='due') due++; else if(st.s==='soon') soon++; });
-  document.getElementById('stat-due').textContent = due;
-  document.getElementById('stat-soon').textContent = soon;
-  document.getElementById('stat-total').textContent = plants.length;
-  document.querySelector('.stat.thirsty').classList.toggle('active', due > 0);
+  const g=growthOf(now), stretch=1/(0.5+0.5*g);
+  const pct=Math.round((stretch-1)*100*DB.settings.seasonSensitivity);
+  document.getElementById('season').innerHTML=
+    '<span class="sdot"></span><span>'+SEASONS[now.getMonth()]+' — intervals '+
+    (pct<=0?'<b>at summer length</b>':'stretched <b>+'+pct+'%</b>')+
+    (g<FEED_FLOOR?', feeding <b>paused</b>':'')+'</span>';
 
-  const list = document.getElementById('list');
-  list.innerHTML = '';
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.view===view));
+  document.getElementById('view-round').classList.toggle('on',view==='round');
+  document.getElementById('view-shelf').classList.toggle('on',view==='shelf');
+  if(view==='round') renderRound(); else renderShelf();
+}
 
-  GROUPS.forEach(g=>{
-    const inGroup = plants.filter(p=>p.group===g.key)
-      .map(p=>({p, st:state(p)}))
-      .sort((a,b)=> b.st.ratio - a.st.ratio);   // thirstiest first
-    if(!inGroup.length) return;
+function renderRound(){
+  const due=dueTasks(), soon=soonTasks();
+  let h='<div class="hero"><div class="n'+(due.length?'':' zero')+'">'+due.length+'</div>'+
+        '<div class="k">'+(due.length===1?'thing to do':'things to do')+'</div>';
+  if(!due.length&&soon.length) h+='<div class="sub2">next in '+soon[0].st.left+' day'+(soon[0].st.left===1?'':'s')+'</div>';
+  h+='</div>';
 
-    const head = document.createElement('div');
-    head.className = 'group-head';
-    const dueN = inGroup.filter(x=>x.st.s==='due').length;
-    head.innerHTML = `<h2>${g.label}</h2><span class="cnt">${dueN? dueN+' due':'all good'}</span>`;
-    list.appendChild(head);
+  if(!due.length){
+    h+='<div class="emptyRound"><div class="e1">Nothing needs you today.</div>'+
+       '<div class="e2">'+(DB.plants.length?'All '+DB.plants.length+' plants are within their window.':'Add a plant to get started.')+'</div></div>';
+  }else{
+    const byRoom={};
+    due.forEach(it=>{ const r=roomName(it.p.room); (byRoom[r]=byRoom[r]||[]).push(it); });
+    Object.keys(byRoom).sort().forEach(r=>{
+      const items=byRoom[r];
+      h+='<div class="roomHead"><h2>'+esc(r)+'</h2>'+
+         (items.length>1?'<button class="doAll" data-act="do-room" data-room="'+esc(r)+'">do all '+items.length+'</button>':'')+
+         '</div>';
+      items.forEach(it=>{
+        const od=it.st.over;
+        h+='<div class="task'+(od>2?' overdue':'')+'" data-act="do-task" data-p="'+it.p.id+'" data-t="'+it.t.key+'">'+
+             '<div class="tick">✓</div>'+
+             '<div class="glyph">'+esc(it.p.glyph)+'</div>'+
+             '<div class="tmeta"><div class="tname">'+esc(it.p.name)+'</div>'+
+               '<div class="twhat"><span class="k '+it.t.key+'">'+it.t.label+'</span>'+
+               (od>0?'<span class="od">'+od+'d overdue</span>':'<span>due today</span>')+
+               (it.st.logged?'':'<span style="color:var(--dim)">no history</span>')+
+               '</div></div>'+
+             '<button class="gear" data-act="open-detail" data-p="'+it.p.id+'" style="width:32px;height:32px;font-size:13px">›</button>'+
+           '</div>';
+      });
+    });
+  }
 
-    inGroup.forEach(({p,st})=>{
-      const card = document.createElement('div');
-      card.className = 'card ' + st.s;
-      const fillW = Math.round(st.moisture*100);
-      let statusTxt;
-      if(st.s==='due'){
-        const over = st.d - p.interval;
-        statusTxt = over>0 ? `Overdue by ${over}d` : 'Water today';
-      } else if(st.s==='soon'){
-        statusTxt = `Due in ${p.interval - st.d}d`;
-      } else {
-        statusTxt = `Watered ${st.d===0?'today':st.d+'d ago'} · next in ${p.interval - st.d}d`;
-      }
-      card.innerHTML = `
-        <div class="fill" style="width:${fillW}%"></div>
-        <div class="card-inner">
-          <div class="glyph"><span>${p.glyph||'🌿'}</span></div>
-          <div class="meta">
-            <div class="name">${esc(p.name)}</div>
-            <div class="species">${esc(p.species||'')}</div>
-            <div class="status ${st.s}"><span class="pill"></span>${statusTxt}</div>
-          </div>
-          <button class="water-btn ${st.d===0?'done':''}" onclick="water('${p.id}', this)">
-            ${st.d===0 ? '✓ DONE' : 'WATER'}
-          </button>
-          <button class="edit-dot" onclick="openEditor('${p.id}')" aria-label="Edit plant">⚙︎</button>
-        </div>`;
-      list.appendChild(card);
+  if(soon.length){
+    h+='<div class="soonWrap"><div class="soonHead">coming up</div>';
+    soon.slice(0,6).forEach(it=>{
+      h+='<div class="soon" data-act="open-detail" data-p="'+it.p.id+'">'+
+           '<span class="sg">'+esc(it.p.glyph)+'</span>'+
+           '<span class="sn">'+esc(it.p.name)+'</span>'+
+           '<span class="sd">'+it.t.label+' in '+it.st.left+'d</span></div>';
+    });
+    h+='</div>';
+  }
+  document.getElementById('view-round').innerHTML=h;
+}
+
+function renderShelf(){
+  const sort=DB.settings.sort;
+  let h='<div class="shelfBar">'+
+    ['room','thirst','type'].map(s=>'<button class="sortBtn'+(sort===s?' on':'')+'" data-act="sort" data-s="'+s+'">by '+s+'</button>').join('')+
+    '</div>';
+
+  if(!DB.plants.length){
+    h+='<div class="emptyRound"><div class="e1">No plants yet.</div><div class="e2">Tap <em>add plant</em> below.</div></div>';
+    document.getElementById('view-shelf').innerHTML=h; return;
+  }
+
+  const rows=DB.plants.map(p=>({p,st:status(p,'water')}));
+  let groups;
+  if(sort==='thirst'){
+    rows.sort((a,b)=>(b.st.ratio||0)-(a.st.ratio||0));
+    groups=[['',rows]];
+  }else if(sort==='type'){
+    groups=GROUPS.map(g=>[g.label,rows.filter(r=>r.p.group===g.key)]).filter(x=>x[1].length);
+  }else{
+    const m={};
+    rows.forEach(r=>{const k=roomName(r.p.room);(m[k]=m[k]||[]).push(r);});
+    groups=Object.keys(m).sort().map(k=>[k,m[k].sort((a,b)=>(b.st.ratio||0)-(a.st.ratio||0))]);
+  }
+
+  groups.forEach(([label,items])=>{
+    if(label) h+='<div class="roomHead"><h2>'+esc(label)+'</h2><span class="sd" style="font-size:10px;color:var(--dim)">'+items.length+'</span></div>';
+    items.forEach(({p,st})=>{
+      const fill=st.tracked?Math.max(0,Math.min(100,Math.round((1-(st.ratio||0))*100))):0;
+      const cls=st.state==='due'?'due':st.state==='soon'?'soon':'';
+      const day=!st.tracked?'—':st.state==='due'?(st.over?'+'+st.over:'0'):st.left;
+      const lbl=!st.tracked?'':st.state==='due'?(st.over?'days over':'today'):'days left';
+      h+='<div class="row" data-act="open-detail" data-p="'+p.id+'">'+
+           '<div class="glyph">'+esc(p.glyph)+'</div>'+
+           '<div class="rmeta"><div class="rname">'+esc(p.name)+'</div>'+
+             (p.species?'<div class="rspec">'+esc(p.species)+'</div>':'')+
+             '<div class="meter"><i class="'+cls+'" data-fill="'+fill+'"></i></div></div>'+
+           '<div class="rday '+cls+'"><b>'+day+'</b>'+lbl+'</div>'+
+         '</div>';
     });
   });
+  document.getElementById('view-shelf').innerHTML=h;
+  // set widths on the next frame so the meters actually animate in
+  requestAnimationFrame(()=>document.querySelectorAll('.meter i[data-fill]')
+    .forEach(el=>{ el.style.width=el.dataset.fill+'%'; }));
 }
 
-function esc(s){ return (s||'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-
-function water(id, btn){
-  const p = plants.find(x=>x.id===id); if(!p) return;
-  p.last = todayISO();
-  save();
-  if(btn) splashAt(btn);   // particles live on <body>, so re-rendering the list won't cut them off
-  render();
+/* ═══ detail sheet ═══════════════════════════════════════════════════════ */
+let detailId=null;
+function openDetail(id){
+  detailId=id; renderDetail();
+  document.getElementById('sheet-detail').classList.add('open');
 }
+function renderDetail(){
+  const p=DB.plants.find(x=>x.id===detailId); if(!p) return;
+  const grp=GROUPS.find(g=>g.key===p.group)||GROUPS[2];
+  let h='<div class="dHead"><div class="glyph">'+esc(p.glyph)+'</div><div style="min-width:0">'+
+        '<div class="dName">'+esc(p.name)+'</div>'+
+        (p.species?'<div class="dSpec">'+esc(p.species)+'</div>':'')+
+        '<div class="dRoom">'+esc(roomName(p.room))+' · '+esc(grp.label)+'</div></div></div>';
 
-// burst of water droplets + a ripple ring centred on the tapped button
-function splashAt(el){
-  const r = el.getBoundingClientRect();
-  const cx = r.left + r.width/2, cy = r.top + r.height/2;
+  h+='<div class="careGrid">';
+  TASKS.forEach(t=>{
+    const st=status(p,t.key);
+    let v,e,cls='';
+    if(!st.tracked){ v='—'; e='not tracked'; cls='off'; }
+    else if(st.suspended){ v='—'; e='paused for winter'; cls='off'; }
+    else { v=st.state==='due'?(st.over?'+'+st.over:'0'):st.left;
+           e=st.logged?'every '+st.every+'d':'since added';
+           cls=st.state==='due'?'due':st.state==='soon'?'soon':''; }
+    h+='<div class="care '+cls+'"><div class="cv">'+v+'</div><div class="ck">'+t.label+'</div><div class="ce">'+e+'</div></div>';
+  });
+  h+='</div>';
 
-  const ring = document.createElement('div');
-  ring.className = 'ripple';
-  ring.style.left = cx+'px'; ring.style.top = cy+'px';
-  document.body.appendChild(ring);
-  setTimeout(()=>ring.remove(), 700);
+  h+='<input class="logDate" type="date" id="log-date" value="'+todayISO()+'" max="'+todayISO()+'" />';
+  h+='<div class="logRow">'+TASKS.map(t=>{
+        const st=status(p,t.key);
+        const off=!st.tracked||st.suspended;
+        return '<button class="logBtn" data-act="log" data-t="'+t.key+'"'+(off?' style="opacity:.45"':'')+'>'+t.verb+'</button>';
+      }).join('')+'</div>';
 
-  const n = 10;
-  for(let i=0;i<n;i++){
-    const d = document.createElement('div');
-    d.className = 'drop';
-    const ang  = (Math.PI*2*i/n) + (Math.random()-0.5)*0.5;
-    const dist = 28 + Math.random()*30;
-    const sz   = 6 + Math.random()*6;
-    d.style.left = cx+'px'; d.style.top = cy+'px';
-    d.style.width = d.style.height = sz+'px';
-    d.style.setProperty('--dx', Math.cos(ang)*dist + 'px');
-    d.style.setProperty('--dy', (Math.sin(ang)*dist + 22) + 'px'); // gravity bias downward
-    d.style.setProperty('--dur', (0.55 + Math.random()*0.35) + 's');
-    document.body.appendChild(d);
-    setTimeout(()=>d.remove(), 1000);
+  // observed-vs-set nudge — compared like for like, at today's season
+  const obs=observedEvery(p.id,'water');
+  if(obs){
+    const eff=effEvery(p,'water');
+    if(Math.abs(obs-eff)/eff>.3){
+      const suggest=Math.max(1,Math.round(obs/waterStretch(p.group)));
+      h+='<div class="sug">You actually water this about every <b>'+obs+' days</b>, but it is set to '+eff+
+         ' for right now. Adjusting the summer baseline to <b>'+suggest+'d</b> would match what you really do.'+
+         '<br><button data-act="accept-suggest" data-v="'+suggest+'">use '+suggest+'d</button></div>';
+    }
   }
+
+  if(p.notes) h+='<div class="secLbl">notes</div><div style="font-size:11.5px;line-height:1.7;color:var(--muted)">'+esc(p.notes)+'</div>';
+
+  h+='<div class="secLbl">history</div>';
+  const hist=DB.events.filter(e=>e.plant===p.id).sort((a,b)=>a.date<b.date?1:-1).slice(0,10);
+  if(!hist.length) h+='<div class="histEmpty">Nothing logged yet.</div>';
+  else hist.forEach(e=>{
+    const t=TASKS.find(x=>x.key===e.type);
+    const ago=daysBetween(e.date,todayISO());
+    h+='<div class="hist"><span class="ht k '+e.type+'" style="color:var(--'+(e.type==='water'?'blue':e.type==='feed'?'green':'amber')+')">'+t.label+'</span>'+
+       '<span class="hd">'+fmtDay(e.date)+' · '+(ago===0?'today':ago===1?'yesterday':ago+'d ago')+'</span>'+
+       '<button class="hx" data-act="del-event" data-e="'+e.id+'">×</button></div>';
+  });
+
+  h+='<div class="acts" style="margin-top:20px">'+
+     '<button class="btn" data-act="close-detail">close</button>'+
+     '<button class="btn primary" data-act="edit-plant">edit</button></div>';
+  document.getElementById('detail-body').innerHTML=h;
 }
 
-/* ---------- editor ---------- */
+/* ═══ editor ═════════════════════════════════════════════════════════════ */
+let editingId=null;
 function openEditor(id){
-  editingId = id || null;
-  const title = document.getElementById('modal-title');
-  const delRow = document.getElementById('delete-row');
+  editingId=id||null;
+  const sel=document.getElementById('f-group');
+  sel.innerHTML=GROUPS.map(g=>'<option value="'+g.key+'">'+g.label+'</option>').join('');
+  document.getElementById('roomlist').innerHTML=roomsList().map(r=>'<option value="'+esc(r)+'">').join('');
+  const g=id=>document.getElementById(id);
   if(editingId){
-    const p = plants.find(x=>x.id===editingId);
-    title.textContent = 'EDIT PLANT';
-    document.getElementById('f-name').value = p.name;
-    document.getElementById('f-species').value = p.species||'';
-    document.getElementById('f-group').value = p.group;
-    document.getElementById('f-interval').value = p.interval;
-    document.getElementById('f-last').value = p.last;
-    document.getElementById('f-glyph').value = p.glyph||'';
-    delRow.style.display = 'flex';
-  } else {
-    title.textContent = 'ADD PLANT';
-    document.getElementById('f-name').value = '';
-    document.getElementById('f-species').value = '';
-    document.getElementById('f-group').value = 'tropical';
-    document.getElementById('f-interval').value = 7;
-    document.getElementById('f-last').value = todayISO();
-    document.getElementById('f-glyph').value = '🌿';
-    delRow.style.display = 'none';
+    const p=DB.plants.find(x=>x.id===editingId);
+    g('edit-title').textContent='edit plant';
+    g('f-name').value=p.name; g('f-species').value=p.species; g('f-room').value=p.room;
+    g('f-glyph').value=p.glyph; g('f-group').value=p.group;
+    g('f-water').value=p.every.water; g('f-feed').value=p.every.feed; g('f-repot').value=p.every.repot;
+    g('f-last').value=lastOf(p.id,'water')||'';
+    g('f-notes').value=p.notes;
+    g('delete-row').style.display='flex';
+  }else{
+    g('edit-title').textContent='add plant';
+    g('f-name').value=''; g('f-species').value=''; g('f-room').value='';
+    g('f-glyph').value='🌿'; g('f-group').value='tropical';
+    g('f-water').value=7; g('f-feed').value=21; g('f-repot').value=12;
+    g('f-last').value=todayISO(); g('f-notes').value='';
+    g('delete-row').style.display='none';
   }
-  document.getElementById('modal').classList.add('open');
+  groupNote();
+  document.getElementById('sheet-edit').classList.add('open');
 }
-function closeEditor(){ document.getElementById('modal').classList.remove('open'); editingId=null; }
+function groupNote(){
+  const g=GROUPS.find(x=>x.key===document.getElementById('f-group').value);
+  document.getElementById('groupNote').textContent=g?g.note:'';
+}
 function saveEditor(){
-  const name = document.getElementById('f-name').value.trim();
-  if(!name){ document.getElementById('f-name').focus(); return; }
-  const data = {
-    name,
-    species: document.getElementById('f-species').value.trim(),
-    group: document.getElementById('f-group').value,
-    interval: Math.max(1, parseInt(document.getElementById('f-interval').value)||7),
-    last: document.getElementById('f-last').value || todayISO(),
-    glyph: document.getElementById('f-glyph').value.trim() || '🌿',
+  const g=id=>document.getElementById(id);
+  const name=g('f-name').value.trim();
+  if(!name){ g('f-name').focus(); toast('Give it a name'); return; }
+  const data={
+    name,species:g('f-species').value.trim(),room:g('f-room').value.trim().toLowerCase(),
+    glyph:g('f-glyph').value.trim().slice(0,2)||'🌿',group:g('f-group').value,
+    every:{water:Math.max(1,parseInt(g('f-water').value)||7),
+           feed :Math.max(0,parseInt(g('f-feed').value)||0),
+           repot:Math.max(0,parseInt(g('f-repot').value)||0)},
+    notes:g('f-notes').value.trim()
   };
+  const last=g('f-last').value;
   if(editingId){
-    Object.assign(plants.find(x=>x.id===editingId), data);
-  } else {
-    plants.push({ id:'p_'+Date.now(), ...data });
+    const p=DB.plants.find(x=>x.id===editingId);
+    Object.assign(p,data);
+    // editing the "last watered" field rewrites the most recent water event
+    // rather than appending, so correcting a date doesn't invent a watering
+    if(/^\d{4}-\d{2}-\d{2}$/.test(last)){
+      const ev=eventsFor(p.id,'water')[0];
+      if(ev) ev.date=last; else logCare(p.id,'water',last);
+    }
+  }else{
+    const id=newId('p');
+    DB.plants.push(Object.assign({id,added:todayISO()},data));
+    if(/^\d{4}-\d{2}-\d{2}$/.test(last)) logCare(id,'water',last);
   }
-  save(); render(); closeEditor();
+  save(); render(); closeSheet('sheet-edit');
+  if(detailId) renderDetail();
+  toast(editingId?'Saved':'Added');
 }
 function deletePlant(){
   if(!editingId) return;
-  plants = plants.filter(x=>x.id!==editingId);
-  save(); render(); closeEditor();
+  if(!confirm('Delete this plant and its whole history?')) return;
+  DB.plants=DB.plants.filter(x=>x.id!==editingId);
+  DB.events=DB.events.filter(e=>e.plant!==editingId);
+  save(); render(); closeSheet('sheet-edit'); closeSheet('sheet-detail');
+  detailId=null; toast('Deleted');
 }
 
-/* ---------- settings ---------- */
-function toast(msg){
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  clearTimeout(toast._t); toast._t = setTimeout(()=>t.classList.remove('show'), 1800);
-}
+/* ═══ settings ═══════════════════════════════════════════════════════════ */
 function openSettings(){
-  document.getElementById('export-box').value = JSON.stringify(plants, null, 2);
-  document.getElementById('import-box').value = '';
-  document.getElementById('settings').classList.add('open');
+  document.getElementById('f-season').value=Math.round(DB.settings.seasonSensitivity*100);
+  document.getElementById('import-box').value='';
+  renderSeason();
+  document.getElementById('sheet-settings').classList.add('open');
 }
-function closeSettings(){ document.getElementById('settings').classList.remove('open'); }
-
-function doCopy(){
-  const box = document.getElementById('export-box');
-  const txt = box.value;
-  const fallback = ()=>{ box.focus(); box.select();
-    try { document.execCommand('copy'); toast('Copied'); } catch(e){ toast('Select the text and copy manually'); } };
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(txt).then(()=>toast('Copied to clipboard'), fallback);
-  } else fallback();
+function renderSeason(){
+  const s=DB.settings.seasonSensitivity, m=new Date().getMonth();
+  document.getElementById('seasonNote').textContent=
+    s===0?'Off — every month treated as summer.'
+         :'At '+Math.round(s*100)+'% — deep winter stretches a tropical plant to '+
+          Math.round((1/(0.5+0.5*GROWTH[0])-1)*100*s)+'% longer than summer.';
+  const stretch=GROWTH.map(g=>1+(1/(0.5+0.5*g)-1)*s);
+  const max=Math.max.apply(null,stretch);
+  document.getElementById('curve').innerHTML=stretch.map((v,i)=>
+    '<div class="'+(i===m?'now':'')+'" style="height:'+Math.max(6,(v/max)*100)+'%"></div>').join('');
+  document.getElementById('curveX').innerHTML=
+    ['J','F','M','A','M','J','J','A','S','O','N','D'].map(l=>'<span>'+l+'</span>').join('');
 }
-function doDownload(){
-  const blob = new Blob([document.getElementById('export-box').value], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'tend-backup-'+todayISO()+'.json';
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url), 1000);
-  toast('Backup downloaded');
-}
-function importPaste(){
-  const txt = document.getElementById('import-box').value.trim();
-  if(!txt){ toast('Nothing to import'); return; }
-  applyImport(txt);
-}
-function importFile(e){
-  const file = e.target.files && e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = ()=> applyImport(String(reader.result));
-  reader.onerror = ()=> toast('Could not read file');
-  reader.readAsText(file);
-  e.target.value = '';
-}
+function exportText(){ return JSON.stringify(DB,null,2); }
 function applyImport(txt){
-  let data;
-  try { data = JSON.parse(txt); } catch(e){ toast('Invalid format'); return; }
-  if(!Array.isArray(data)){ toast('Invalid format'); return; }
-  const cleaned = data.filter(x=>x && x.name).map((x,i)=>({
-    id: x.id || ('p_'+Date.now()+'_'+i),
-    name: String(x.name),
-    species: x.species ? String(x.species) : '',
-    group: ['herb','tropical','seedling','succulent'].includes(x.group) ? x.group : 'tropical',
-    interval: Math.max(1, parseInt(x.interval)||7),
-    last: /^\d{4}-\d{2}-\d{2}$/.test(x.last) ? x.last : todayISO(),
-    glyph: x.glyph ? String(x.glyph).slice(0,2) : '🌿',
-  }));
-  if(!cleaned.length){ toast('No valid plants found'); return; }
-  plants = cleaned;
-  save(); render(); closeSettings();
-  toast('Imported '+cleaned.length+' plants');
-}
-function clearData(){
-  if(!confirm('Clear all data and reset to the default plants? Your watering history will be lost.')) return;
-  try { localStorage.removeItem(STORE); } catch(e){}
-  plants = null; load(); render(); closeSettings();
-  toast('Reset to defaults');
+  let raw;
+  try{ raw=JSON.parse(txt); }catch(e){ toast('Not valid JSON'); return; }
+  if(Array.isArray(raw)) raw=migrate(raw);                     // a v2 backup
+  if(!raw||!Array.isArray(raw.plants)||!raw.plants.length){ toast('No plants in that file'); return; }
+  DB=normalise(raw); save(); render(); closeSheet('sheet-settings');
+  toast('Imported '+DB.plants.length+' plants');
 }
 
-document.getElementById('modal').addEventListener('click', e=>{
-  if(e.target.id==='modal') closeEditor();
+/* ═══ chrome ═════════════════════════════════════════════════════════════ */
+let toastT;
+function toast(m){
+  const t=document.getElementById('toast');
+  t.textContent=m; t.classList.add('on');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'),1900);
+}
+function closeSheet(id){
+  document.getElementById(id).classList.remove('open');
+  if(id==='sheet-edit') editingId=null;
+  if(id==='sheet-detail') detailId=null;
+}
+
+/* one delegated listener — no inline handlers, so nothing user-supplied is
+   ever interpolated into an attribute that the browser will execute */
+document.addEventListener('click',ev=>{
+  const t=ev.target.closest('[data-act]');
+  const act=t&&t.dataset.act;
+
+  if(t&&(act==='open-detail')){ ev.stopPropagation(); openDetail(t.dataset.p); return; }
+
+  if(act==='do-task'){
+    const p=DB.plants.find(x=>x.id===t.dataset.p);
+    const task=TASKS.find(x=>x.key===t.dataset.t);
+    if(p&&task) doTasks([{p,t:task}],task.verb+' '+p.name.toLowerCase());
+    return;
+  }
+  if(act==='do-room'){
+    const room=t.dataset.room;
+    const items=dueTasks().filter(it=>roomName(it.p.room)===room);
+    if(items.length) doTasks(items,'did '+items.length+' in '+room);
+    return;
+  }
+  if(act==='sort'){ DB.settings.sort=t.dataset.s; save(); render(); return; }
+  if(act==='log'){
+    const p=DB.plants.find(x=>x.id===detailId);
+    const d=document.getElementById('log-date').value||todayISO();
+    if(p){ const id=logCare(p.id,t.dataset.t,d); save(); render(); renderDetail();
+           offerUndo(TASKS.find(x=>x.key===t.dataset.t).verb+' '+p.name.toLowerCase(),[id]); }
+    return;
+  }
+  if(act==='del-event'){
+    DB.events=DB.events.filter(e=>e.id!==t.dataset.e);
+    save(); render(); renderDetail(); toast('Entry removed'); return;
+  }
+  if(act==='accept-suggest'){
+    const p=DB.plants.find(x=>x.id===detailId);
+    if(p){ p.every.water=parseInt(t.dataset.v); save(); render(); renderDetail(); toast('Baseline updated'); }
+    return;
+  }
+  if(act==='edit-plant'){ openEditor(detailId); return; }
+  if(act==='close-detail'){ closeSheet('sheet-detail'); return; }
+  if(act==='close-edit'){ closeSheet('sheet-edit'); return; }
+  if(act==='save-edit'){ saveEditor(); return; }
+  if(act==='delete-plant'){ deletePlant(); return; }
+  if(act==='close-settings'){ closeSheet('sheet-settings'); return; }
+  if(act==='copy'){
+    const txt=exportText();
+    if(navigator.clipboard&&navigator.clipboard.writeText)
+      navigator.clipboard.writeText(txt).then(()=>toast('Copied'),()=>toast('Could not copy'));
+    else toast('Could not copy');
+    return;
+  }
+  if(act==='download'){
+    const b=new Blob([exportText()],{type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(b); a.download='tend-'+todayISO()+'.json';
+    a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); toast('Downloaded'); return;
+  }
+  if(act==='import'){
+    const v=document.getElementById('import-box').value.trim();
+    if(!v){ toast('Nothing to import'); return; }
+    applyImport(v); return;
+  }
+  if(act==='clear'){
+    if(!confirm('Delete every plant and the whole care history?')) return;
+    try{ localStorage.removeItem(STORE); }catch(e){}
+    DB={v:3,plants:seedPlants(),events:[],settings:{seasonSensitivity:1,sort:'room'}};
+    save(); render(); closeSheet('sheet-settings'); toast('Reset'); return;
+  }
+
+  // tabs + backdrops
+  const tab=ev.target.closest('.tab');
+  if(tab){ view=tab.dataset.view; render(); return; }
+  if(ev.target.classList.contains('modal-bg')) closeSheet(ev.target.id);
 });
-document.getElementById('settings').addEventListener('click', e=>{
-  if(e.target.id==='settings') closeSettings();
+
+document.getElementById('btn-add').addEventListener('click',()=>openEditor());
+document.getElementById('btn-settings').addEventListener('click',openSettings);
+document.getElementById('undo-btn').addEventListener('click',undoLast);
+document.getElementById('f-group').addEventListener('change',groupNote);
+document.getElementById('f-season').addEventListener('input',e=>{
+  DB.settings.seasonSensitivity=+e.target.value/100;
+  save(); renderSeason(); render();
+});
+document.getElementById('f-file').addEventListener('change',e=>{
+  const f=e.target.files&&e.target.files[0]; e.target.value='';
+  if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>applyImport(String(r.result));
+  r.onerror=()=>toast('Could not read that file');
+  r.readAsText(f);
 });
 
 load();
